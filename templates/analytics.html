@@ -1,0 +1,1596 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Harvest | Analytics</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --bg: #eef8f0;
+            --card: rgba(255,255,255,.88);
+            --text: #12351f;
+            --muted: #668170;
+            --border: rgba(20,90,45,.13);
+            --green: #20c968;
+            --green2: #63ee99;
+            --dark: #052a18;
+            --soft: rgba(32,201,104,.10);
+        }
+
+        body.dark {
+            --bg: #02130a;
+            --card: rgba(5,29,17,.91);
+            --text: #ecfff0;
+            --muted: #8da895;
+            --border: rgba(120,220,145,.14);
+            --green: #3be37d;
+            --green2: #78f5a5;
+            --dark: #031c10;
+            --soft: rgba(59,227,125,.10);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", system-ui, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 10% 5%, rgba(40,205,105,.15), transparent 30%),
+                radial-gradient(circle at 90% 85%, rgba(20,160,75,.12), transparent 35%),
+                var(--bg);
+            transition: background .5s ease, color .5s ease;
+            overflow-x: hidden;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        .orb {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(45,220,110,.16), transparent 68%);
+            filter: blur(20px);
+            z-index: -3;
+            pointer-events: none;
+            animation: orbFloat 12s ease-in-out infinite;
+        }
+
+        .orb.one {
+            top: -140px;
+            left: -100px;
+        }
+
+        .orb.two {
+            right: -130px;
+            bottom: -130px;
+            animation-delay: -6s;
+        }
+
+        @keyframes orbFloat {
+            0%,100% { transform: translate(0,0) scale(1); }
+            50% { transform: translate(45px,30px) scale(1.15); }
+        }
+
+        .floating-leaf {
+            position: fixed;
+            z-index: -1;
+            pointer-events: none;
+            opacity: .14;
+            font-size: 25px;
+            animation: leafAnimation 10s ease-in-out infinite;
+        }
+
+        .leaf1 { top: 18%; left: 8%; }
+        .leaf2 { top: 48%; right: 6%; animation-delay: -3s; }
+        .leaf3 { bottom: 12%; left: 28%; animation-delay: -6s; }
+
+        @keyframes leafAnimation {
+            0%,100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-35px) rotate(18deg); }
+        }
+
+        .particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -2;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--green);
+            opacity: .18;
+            animation: particleMove 12s linear infinite;
+        }
+
+        @keyframes particleMove {
+            from { transform: translateY(110vh) translateX(0); }
+            to { transform: translateY(-10vh) translateX(80px); }
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 275px;
+            padding: 22px 17px;
+            z-index: 100;
+            background: linear-gradient(180deg, #062d1a, #02160b);
+            border-right: 1px solid rgba(120,235,150,.13);
+            box-shadow: 25px 0 70px rgba(0,0,0,.25);
+            transform: translateX(-100%);
+            transition: transform .4s cubic-bezier(.77,0,.18,1);
+            overflow-y: auto;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 8px 25px;
+        }
+
+        .logo-box img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            padding: 5px;
+            border-radius: 14px;
+            background: rgba(70,220,120,.10);
+        }
+
+        .logo-box strong {
+            display: block;
+            color: white;
+            font-size: 19px;
+        }
+
+        .logo-box small {
+            display: block;
+            margin-top: 3px;
+            color: rgba(220,245,225,.4);
+            font-size: 9px;
+            letter-spacing: 1.5px;
+        }
+
+        .nav-title {
+            margin: 15px 12px 8px;
+            color: rgba(200,235,210,.35);
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            margin-bottom: 5px;
+            padding: 13px 14px;
+            color: rgba(230,250,235,.72);
+            text-decoration: none;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 750;
+            transition: .25s ease;
+        }
+
+        .nav-link:hover {
+            color: white;
+            background: rgba(70,220,120,.08);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            color: #041b0d;
+            background: linear-gradient(135deg, #64ed98, #20c968);
+            box-shadow: 0 12px 30px rgba(40,210,105,.18);
+        }
+
+        .nav-icon {
+            width: 27px;
+            flex-shrink: 0;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .sidebar-footer {
+            margin-top: 25px;
+            padding: 13px;
+            border-radius: 16px;
+            background: rgba(70,215,115,.06);
+            border: 1px solid rgba(80,220,130,.12);
+        }
+
+        .sidebar-footer small {
+            color: rgba(220,245,225,.55);
+        }
+
+        .sidebar-footer strong {
+            display: block;
+            margin-top: 4px;
+            color: white;
+            font-size: 12px;
+        }
+
+        /* OVERLAY */
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 90;
+            background: rgba(0,0,0,.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: .3s;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* TOPBAR */
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            min-height: 75px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 28px;
+            background: var(--card);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .top-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .menu-btn, .icon-btn {
+            width: 43px;
+            height: 43px;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: var(--card);
+            color: var(--text);
+            cursor: pointer;
+            transition: .25s;
+        }
+
+        .menu-btn:hover, .icon-btn:hover {
+            transform: translateY(-2px);
+            background: var(--soft);
+        }
+
+        .page-title strong {
+            display: block;
+            font-size: 18px;
+        }
+
+        .page-title span {
+            display: block;
+            margin-top: 2px;
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .language {
+            display: flex;
+            gap: 3px;
+            padding: 4px;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+        }
+
+        .lang-btn {
+            border: 0;
+            padding: 6px 9px;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--muted);
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .lang-btn.active {
+            color: #03160b;
+            background: var(--green);
+        }
+
+        /* MAIN */
+
+        .main {
+            min-height: calc(100vh - 75px);
+            padding: 30px clamp(14px,4vw,50px);
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: auto;
+        }
+
+        /* HERO */
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: clamp(25px,4vw,42px);
+            border-radius: 30px;
+            color: white;
+            background: linear-gradient(135deg, #095c32, #031d10);
+            box-shadow: 0 30px 80px rgba(0,60,30,.22);
+            animation: pageIn .8s ease;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            width: 360px;
+            height: 360px;
+            right: -130px;
+            top: -150px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(80,245,140,.2), transparent 70%);
+            animation: heroGlow 7s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes heroGlow {
+            0%,100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .live-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 12px;
+            border-radius: 999px;
+            color: #a7f5bd;
+            background: rgba(80,235,135,.10);
+            border: 1px solid rgba(100,240,150,.16);
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .live-dot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: #5cff91;
+            box-shadow: 0 0 10px rgba(92,255,145,.8);
+            animation: livePulse 1.5s infinite;
+        }
+
+        @keyframes livePulse {
+            0%,100% { transform: scale(.9); }
+            50% { transform: scale(1.2); }
+        }
+
+        .hero h1 {
+            position: relative;
+            margin: 18px 0 8px;
+            font-size: clamp(32px,5vw,50px);
+            line-height: 1.15;
+            font-weight: 900;
+            letter-spacing: -2px;
+        }
+
+        .hero h1 span {
+            color: #60eb97;
+        }
+
+        .hero p {
+            position: relative;
+            max-width: 720px;
+            margin: 0;
+            color: rgba(230,250,235,.75);
+            line-height: 1.7;
+            font-size: 13px;
+        }
+
+        .scan-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(100,255,155,.7), transparent);
+            box-shadow: 0 0 15px rgba(100,255,155,.7);
+            animation: scan 5s linear infinite;
+            opacity: .35;
+            pointer-events: none;
+        }
+
+        @keyframes scan {
+            from { top: 0; }
+            to { top: 100%; }
+        }
+
+        /* STATS */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4,minmax(0,1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat {
+            position: relative;
+            overflow: hidden;
+            min-width: 0;
+            padding: 19px;
+            border-radius: 21px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            box-shadow: 0 15px 50px rgba(20,80,40,.07);
+            transition: .3s ease;
+            animation: cardIn .7s ease both;
+        }
+
+        .stat:nth-child(2) { animation-delay: .08s; }
+        .stat:nth-child(3) { animation-delay: .16s; }
+        .stat:nth-child(4) { animation-delay: .24s; }
+
+        .stat:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat::after {
+            content: "";
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            right: -45px;
+            bottom: -45px;
+            border-radius: 50%;
+            background: var(--soft);
+            pointer-events: none;
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: var(--soft);
+            font-size: 20px;
+        }
+
+        .stat-label {
+            margin-top: 14px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .stat-value {
+            margin-top: 3px;
+            font-size: 27px;
+            font-weight: 900;
+        }
+
+        .stat-change {
+            margin-top: 4px;
+            color: var(--green);
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        /* CARDS */
+
+        .card {
+            min-width: 0;
+            padding: 22px;
+            border-radius: 25px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 60px rgba(20,80,40,.07);
+            backdrop-filter: blur(16px);
+            animation: cardIn .8s ease;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 17px;
+        }
+
+        .card-title h2 {
+            margin: 0;
+            font-size: 17px;
+        }
+
+        .card-title p {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 9px;
+        }
+
+        .live-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            padding: 6px 9px;
+            border-radius: 999px;
+            color: var(--green);
+            background: var(--soft);
+            font-size: 8px;
+            font-weight: 900;
+        }
+
+        /* CHARTS */
+
+        .charts {
+            display: grid;
+            grid-template-columns: minmax(0,1.45fr) minmax(0,.85fr);
+            gap: 18px;
+            margin-top: 18px;
+        }
+
+        .chart-wrap {
+            position: relative;
+            height: 310px;
+        }
+
+        /* FIELD MONITOR */
+
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 12px;
+        }
+
+        .field {
+            position: relative;
+            overflow: hidden;
+            min-width: 0;
+            padding: 15px;
+            border-radius: 18px;
+            background: var(--soft);
+            border: 1px solid var(--border);
+            transition: .3s;
+        }
+
+        .field:hover {
+            transform: translateY(-4px);
+        }
+
+        .field-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .field-icon {
+            width: 39px;
+            height: 39px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: rgba(40,205,105,.13);
+            font-size: 19px;
+        }
+
+        .field-live {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--green);
+            font-size: 8px;
+            font-weight: 900;
+        }
+
+        .field-name {
+            margin-top: 10px;
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .field-info {
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: 9px;
+        }
+
+        .progress {
+            position: relative;
+            height: 6px;
+            margin-top: 11px;
+            overflow: hidden;
+            border-radius: 99px;
+            background: rgba(90,160,110,.12);
+        }
+
+        .progress span {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #1dbd60, #70efa0);
+            box-shadow: 0 0 12px rgba(60,225,120,.45);
+            transition: width 1s ease;
+        }
+
+        .field-percent {
+            margin-top: 7px;
+            text-align: right;
+            font-size: 10px;
+            color: var(--green);
+            font-weight: 900;
+        }
+
+        /* BOTTOM */
+
+        .bottom {
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 18px;
+            margin-top: 18px;
+        }
+
+        .system-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 13px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .system-row:last-child {
+            border-bottom: 0;
+        }
+
+        .system-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .system-icon {
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            background: var(--soft);
+        }
+
+        .system-name {
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        .system-sub {
+            margin-top: 2px;
+            color: var(--muted);
+            font-size: 8px;
+        }
+
+        .online {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+            color: var(--green);
+            font-size: 8px;
+            font-weight: 900;
+        }
+
+        /* ACTIVITY */
+
+        .activity {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+
+        .activity-row {
+            display: flex;
+            gap: 10px;
+            animation: activityIn .5s ease;
+        }
+
+        .activity-dot {
+            flex-shrink: 0;
+            width: 8px;
+            height: 8px;
+            margin-top: 5px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 0 5px var(--soft);
+        }
+
+        .activity-text {
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .activity-time {
+            margin-top: 2px;
+            color: var(--muted);
+            font-size: 8px;
+        }
+
+        @keyframes activityIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pageIn {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width:950px) {
+            .stats {
+                grid-template-columns: repeat(2,minmax(0,1fr));
+            }
+
+            .charts,
+            .bottom {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width:600px) {
+            .topbar {
+                padding: 12px 13px;
+            }
+
+            .main {
+                padding: 20px 12px;
+            }
+
+            .page-title span {
+                display: none;
+            }
+
+            .language {
+                display: none;
+            }
+
+            .stats {
+                gap: 9px;
+            }
+
+            .stat {
+                padding: 14px;
+            }
+
+            .stat-value {
+                font-size: 22px;
+            }
+
+            .stat-change {
+                font-size: 8px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .chart-wrap {
+                height: 255px;
+            }
+
+            .field-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                letter-spacing: -1px;
+            }
+        }
+
+        @media(prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BACKGROUND -->
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+    <div class="floating-leaf leaf1">🌿</div>
+    <div class="floating-leaf leaf2">🍃</div>
+    <div class="floating-leaf leaf3">🌱</div>
+    <div class="particles" id="particles"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo-box">
+            <img src="{% static 'images/cropwise-logo.png' %}" alt="Green Harvest logo">
+            <div>
+                <strong>Green Harvest</strong>
+                <small>SMART FARMING</small>
+            </div>
+        </div>
+
+        <div class="nav-title" data-en="MAIN MENU" data-bn="প্রধান মেনু"></div>
+
+        <a href="{% url 'index' %}" class="nav-link">
+            <span class="nav-icon">🏠</span>
+            <span data-en="Home" data-bn="হোম"></span>
+        </a>
+
+        <a href="{% url 'dashboard' %}" class="nav-link">
+            <span class="nav-icon">📊</span>
+            <span data-en="Dashboard" data-bn="ড্যাশবোর্ড"></span>
+        </a>
+
+        <a href="{% url 'weather' %}" class="nav-link">
+            <span class="nav-icon">🌦️</span>
+            <span data-en="Weather" data-bn="আবহাওয়া"></span>
+        </a>
+
+        <a href="{% url 'water_management' %}" class="nav-link">
+            <span class="nav-icon">💧</span>
+            <span data-en="Water Management" data-bn="পানি ব্যবস্থাপনা"></span>
+        </a>
+
+        <a href="{% url 'harvest' %}" class="nav-link">
+            <span class="nav-icon">🌾</span>
+            <span data-en="Harvest" data-bn="ফসল সংগ্রহ"></span>
+        </a>
+
+        <!-- QR SCANNER: temporary safe link; no missing Django URL -->
+        <a href="#" class="nav-link" id="qrScannerLink">
+            <span class="nav-icon">📱</span>
+            <span data-en="QR Scanner" data-bn="QR স্ক্যানার"></span>
+        </a>
+
+        <a href="{% url 'analytics' %}" class="nav-link active">
+            <span class="nav-icon">📈</span>
+            <span data-en="Analytics" data-bn="অ্যানালিটিক্স"></span>
+        </a>
+
+        <a href="{% url 'settings' %}" class="nav-link">
+            <span class="nav-icon">⚙️</span>
+            <span data-en="Settings" data-bn="সেটিংস"></span>
+        </a>
+
+        <div class="sidebar-footer">
+            <small data-en="SYSTEM STATUS" data-bn="সিস্টেমের অবস্থা"></small>
+            <strong>
+                <span class="live-dot"></span>
+                <span data-en="System Online" data-bn="সিস্টেম চালু"></span>
+            </strong>
+        </div>
+
+    </aside>
+
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+
+        <div class="top-left">
+            <button class="menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
+
+            <div class="page-title">
+                <strong>
+                    📈
+                    <span data-en="Analytics" data-bn="অ্যানালিটিক্স"></span>
+                </strong>
+                <span data-en="Live farm intelligence" data-bn="লাইভ ফার্ম পর্যবেক্ষণ"></span>
+            </div>
+        </div>
+
+        <div class="actions">
+            <div class="language">
+                <button class="lang-btn active" id="bnBtn" onclick="setLanguage('bn')">বাংলা</button>
+                <button class="lang-btn" id="enBtn" onclick="setLanguage('en')">EN</button>
+            </div>
+
+            <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" aria-label="Toggle theme">🌙</button>
+        </div>
+
+    </header>
+
+    <!-- MAIN -->
+    <main class="main">
+        <div class="container">
+
+            <!-- HERO -->
+            <section class="hero">
+                <div class="scan-line"></div>
+
+                <div class="live-tag">
+                    <span class="live-dot"></span>
+                    <span data-en="LIVE FARM DATA CONNECTED" data-bn="লাইভ ফার্ম ডাটা সংযুক্ত"></span>
+                </div>
+
+                <h1>
+                    Green
+                    <span data-en=" Analytics" data-bn=" অ্যানালিটিক্স"></span>
+                </h1>
+
+                <p
+                    data-en="Monitor crop health, irrigation, field conditions and harvest progress in real time."
+                    data-bn="ফসলের স্বাস্থ্য, সেচ, জমির অবস্থা এবং ফসল সংগ্রহের অগ্রগতি পর্যবেক্ষণ করুন।">
+                </p>
+            </section>
+
+            <!-- STATS -->
+            <section class="stats">
+
+                <div class="stat">
+                    <div class="stat-top">
+                        <div class="stat-icon">🌾</div>
+                        <span class="live-dot"></span>
+                    </div>
+                    <div class="stat-label" data-en="Total Fields" data-bn="মোট জমি"></div>
+                    <div class="stat-value" id="fieldsValue">12</div>
+                    <div class="stat-change" data-en="● 10 active now" data-bn="● ১০টি এখন সক্রিয়"></div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-top">
+                        <div class="stat-icon">💧</div>
+                        <span class="live-dot"></span>
+                    </div>
+                    <div class="stat-label" data-en="Water Usage" data-bn="পানি ব্যবহার"></div>
+                    <div class="stat-value" id="waterValue">68%</div>
+                    <div class="stat-change" data-en="SIMULATED sensor reading" data-bn="নমুনা সেন্সর রিডিং"></div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-top">
+                        <div class="stat-icon">🌱</div>
+                        <span class="live-dot"></span>
+                    </div>
+                    <div class="stat-label" data-en="Crop Health" data-bn="ফসলের স্বাস্থ্য"></div>
+                    <div class="stat-value" id="healthValue">87%</div>
+                    <div class="stat-change" data-en="SIMULATED crop analysis" data-bn="নমুনা ফসল বিশ্লেষণ"></div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-top">
+                        <div class="stat-icon">🧺</div>
+                        <span class="live-dot"></span>
+                    </div>
+                    <div class="stat-label" data-en="Harvest Progress" data-bn="ফসল সংগ্রহ"></div>
+                    <div class="stat-value" id="harvestValue">74%</div>
+                    <div class="stat-change" data-en="SIMULATED progress" data-bn="নমুনা অগ্রগতি"></div>
+                </div>
+
+            </section>
+
+            <!-- CHARTS -->
+            <section class="charts">
+
+                <div class="card">
+                    <div class="card-title">
+                        <div>
+                            <h2 data-en="Farm Performance" data-bn="ফার্ম পারফরম্যান্স"></h2>
+                            <p data-en="Sample crop and irrigation readings" data-bn="ফসল ও সেচের নমুনা তথ্য"></p>
+                        </div>
+                        <div class="live-status">
+                            <span class="live-dot"></span>
+                            <span data-en="DEMO" data-bn="ডেমো"></span>
+                        </div>
+                    </div>
+                    <div class="chart-wrap">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <div>
+                            <h2 data-en="Crop Distribution" data-bn="ফসলের বণ্টন"></h2>
+                            <p data-en="Sample field allocation" data-bn="জমির নমুনা বণ্টন"></p>
+                        </div>
+                    </div>
+                    <div class="chart-wrap">
+                        <canvas id="cropChart"></canvas>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- FIELD MONITOR -->
+            <section class="card" style="margin-top:18px;">
+
+                <div class="card-title">
+                    <div>
+                        <h2 data-en="Field Monitoring" data-bn="জমি পর্যবেক্ষণ"></h2>
+                        <p data-en="Sample crop conditions by field" data-bn="প্রতিটি জমির নমুনা ফসলের অবস্থা"></p>
+                    </div>
+                    <div class="live-status">
+                        <span class="live-dot"></span>
+                        <span data-en="DEMO DATA" data-bn="নমুনা তথ্য"></span>
+                    </div>
+                </div>
+
+                <div class="field-grid">
+
+                    <div class="field">
+                        <div class="field-top">
+                            <div class="field-icon">🌾</div>
+                            <div class="field-live"><span class="live-dot"></span> DEMO</div>
+                        </div>
+                        <div class="field-name" data-en="Field A — Rice" data-bn="জমি A — ধান"></div>
+                        <div class="field-info" data-en="Crop health" data-bn="ফসলের স্বাস্থ্য"></div>
+                        <div class="progress"><span id="field1" style="width:91%;"></span></div>
+                        <div class="field-percent" id="field1Text">91%</div>
+                    </div>
+
+                    <div class="field">
+                        <div class="field-top">
+                            <div class="field-icon">🥔</div>
+                            <div class="field-live"><span class="live-dot"></span> DEMO</div>
+                        </div>
+                        <div class="field-name" data-en="Field B — Potato" data-bn="জমি B — আলু"></div>
+                        <div class="field-info" data-en="Crop health" data-bn="ফসলের স্বাস্থ্য"></div>
+                        <div class="progress"><span id="field2" style="width:82%;"></span></div>
+                        <div class="field-percent" id="field2Text">82%</div>
+                    </div>
+
+                    <div class="field">
+                        <div class="field-top">
+                            <div class="field-icon">🍅</div>
+                            <div class="field-live"><span class="live-dot"></span> DEMO</div>
+                        </div>
+                        <div class="field-name" data-en="Field C — Tomato" data-bn="জমি C — টমেটো"></div>
+                        <div class="field-info" data-en="Crop health" data-bn="ফসলের স্বাস্থ্য"></div>
+                        <div class="progress"><span id="field3" style="width:88%;"></span></div>
+                        <div class="field-percent" id="field3Text">88%</div>
+                    </div>
+
+                    <div class="field">
+                        <div class="field-top">
+                            <div class="field-icon">🌽</div>
+                            <div class="field-live"><span class="live-dot"></span> DEMO</div>
+                        </div>
+                        <div class="field-name" data-en="Field D — Corn" data-bn="জমি D — ভুট্টা"></div>
+                        <div class="field-info" data-en="Crop health" data-bn="ফসলের স্বাস্থ্য"></div>
+                        <div class="progress"><span id="field4" style="width:76%;"></span></div>
+                        <div class="field-percent" id="field4Text">76%</div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- BOTTOM -->
+            <section class="bottom">
+
+                <div class="card">
+                    <div class="card-title">
+                        <div>
+                            <h2 data-en="Smart Sensors" data-bn="স্মার্ট সেন্সর"></h2>
+                            <p data-en="Example device status" data-bn="ডিভাইসের নমুনা অবস্থা"></p>
+                        </div>
+                    </div>
+
+                    <div class="system-row">
+                        <div class="system-left">
+                            <div class="system-icon">💧</div>
+                            <div>
+                                <div class="system-name" data-en="Water Pump" data-bn="পানির পাম্প"></div>
+                                <div class="system-sub" data-en="Field A" data-bn="জমি A"></div>
+                            </div>
+                        </div>
+                        <div class="online"><span class="live-dot"></span> DEMO</div>
+                    </div>
+
+                    <div class="system-row">
+                        <div class="system-left">
+                            <div class="system-icon">🌡️</div>
+                            <div>
+                                <div class="system-name" data-en="Soil Sensor" data-bn="মাটির সেন্সর"></div>
+                                <div class="system-sub" data-en="Field B" data-bn="জমি B"></div>
+                            </div>
+                        </div>
+                        <div class="online"><span class="live-dot"></span> DEMO</div>
+                    </div>
+
+                    <div class="system-row">
+                        <div class="system-left">
+                            <div class="system-icon">☀️</div>
+                            <div>
+                                <div class="system-name" data-en="Weather Sensor" data-bn="আবহাওয়া সেন্সর"></div>
+                                <div class="system-sub" data-en="Main Field" data-bn="প্রধান জমি"></div>
+                            </div>
+                        </div>
+                        <div class="online"><span class="live-dot"></span> DEMO</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <div>
+                            <h2 data-en="Recent Activity" data-bn="সাম্প্রতিক কার্যক্রম"></h2>
+                            <p data-en="Generated demonstration events" data-bn="নমুনা কার্যক্রমের তালিকা"></p>
+                        </div>
+                        <div class="live-status">
+                            <span class="live-dot"></span>
+                            DEMO
+                        </div>
+                    </div>
+
+                    <div class="activity" id="activity">
+
+                        <div class="activity-row">
+                            <div class="activity-dot"></div>
+                            <div>
+                                <div class="activity-text" data-en="Field A irrigation completed." data-bn="জমি A-এর সেচ সম্পন্ন হয়েছে।"></div>
+                                <div class="activity-time" data-en="Recently" data-bn="সম্প্রতি"></div>
+                            </div>
+                        </div>
+
+                        <div class="activity-row">
+                            <div class="activity-dot"></div>
+                            <div>
+                                <div class="activity-text" data-en="Crop health sample updated." data-bn="ফসলের স্বাস্থ্য সম্পর্কিত নমুনা তথ্য আপডেট হয়েছে।"></div>
+                                <div class="activity-time" data-en="1 minute ago" data-bn="১ মিনিট আগে"></div>
+                            </div>
+                        </div>
+
+                        <div class="activity-row">
+                            <div class="activity-dot"></div>
+                            <div>
+                                <div class="activity-text" data-en="Weather sample synchronized." data-bn="আবহাওয়ার নমুনা তথ্য সিঙ্ক হয়েছে।"></div>
+                                <div class="activity-time" data-en="2 minutes ago" data-bn="২ মিনিট আগে"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        /* PARTICLES */
+        const particleBox = document.getElementById("particles");
+
+        for (let i = 0; i < 28; i++) {
+            const p = document.createElement("span");
+            p.className = "particle";
+            p.style.left = Math.random() * 100 + "%";
+            p.style.animationDuration = 8 + Math.random() * 12 + "s";
+            p.style.animationDelay = -Math.random() * 10 + "s";
+            p.style.width = 2 + Math.random() * 4 + "px";
+            p.style.height = p.style.width;
+            particleBox.appendChild(p);
+        }
+
+        /* SIDEBAR */
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("overlay");
+
+        function toggleSidebar() {
+            sidebar.classList.toggle("open");
+            overlay.classList.toggle("show");
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove("open");
+            overlay.classList.remove("show");
+        }
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") closeSidebar();
+        });
+
+        /* Close sidebar after selecting a navigation link on mobile */
+        document.querySelectorAll(".nav-link").forEach(function (link) {
+            link.addEventListener("click", function () {
+                if (window.innerWidth <= 950) closeSidebar();
+            });
+        });
+
+        /* QR scanner is not wired to a Django page yet */
+        document.getElementById("qrScannerLink").addEventListener("click", function (event) {
+            event.preventDefault();
+            alert(
+                currentLanguage === "bn"
+                    ? "QR Scanner পেজটি এখনো তৈরি করা হয়নি। আগে Django URL ও view যোগ করতে হবে।"
+                    : "The QR Scanner page has not been created yet. Add its Django URL and view first."
+            );
+        });
+
+        /* THEME */
+        const themeBtn = document.getElementById("themeBtn");
+
+        function applyTheme(theme) {
+            document.body.classList.toggle("dark", theme === "dark");
+            themeBtn.textContent = theme === "dark" ? "☀️" : "🌙";
+            localStorage.setItem("greenHarvestTheme", theme);
+
+            if (typeof performanceChart !== "undefined") {
+                updateChartTheme();
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.body.classList.contains("dark");
+            applyTheme(isDark ? "light" : "dark");
+        }
+
+        /* LANGUAGE */
+        let currentLanguage = localStorage.getItem("greenHarvestLanguage") || "bn";
+
+        function setLanguage(language) {
+            currentLanguage = language;
+            localStorage.setItem("greenHarvestLanguage", language);
+            document.documentElement.lang = language;
+
+            document.querySelectorAll("[data-en][data-bn]").forEach(function (el) {
+                el.textContent = el.dataset[language];
+            });
+
+            document.getElementById("bnBtn").classList.toggle("active", language === "bn");
+            document.getElementById("enBtn").classList.toggle("active", language === "en");
+        }
+
+        /* LIVE DEMO VALUES */
+        let water = 68;
+        let health = 87;
+        let harvest = 74;
+
+        function changeValue(value, min, max) {
+            const change = Math.random() > 0.5 ? 1 : -1;
+            return Math.max(min, Math.min(max, value + change));
+        }
+
+        function updateLiveNumbers() {
+            water = changeValue(water, 55, 80);
+            health = changeValue(health, 80, 96);
+            harvest = changeValue(harvest, 65, 90);
+
+            document.getElementById("waterValue").textContent = water + "%";
+            document.getElementById("healthValue").textContent = health + "%";
+            document.getElementById("harvestValue").textContent = harvest + "%";
+
+            ["waterValue", "healthValue", "harvestValue"].forEach(function (id) {
+                const el = document.getElementById(id);
+                el.animate(
+                    [
+                        { transform: "scale(1)", opacity: .7 },
+                        { transform: "scale(1.08)", opacity: 1 },
+                        { transform: "scale(1)", opacity: 1 }
+                    ],
+                    { duration: 600 }
+                );
+            });
+        }
+
+        /* FIELD DEMO VALUES */
+        const fieldValues = [91, 82, 88, 76];
+
+        function updateFields() {
+            fieldValues.forEach(function (original, index) {
+                const value = Math.round(
+                    Math.max(70, Math.min(97, original + Math.random() * 4 - 2))
+                );
+
+                const bar = document.getElementById("field" + (index + 1));
+                const label = document.getElementById("field" + (index + 1) + "Text");
+
+                bar.style.width = value + "%";
+                label.textContent = value + "%";
+            });
+        }
+
+        /* CHART COLORS */
+        function getChartColors() {
+            const style = getComputedStyle(document.body);
+
+            return {
+                text: style.getPropertyValue("--muted").trim(),
+                grid: style.getPropertyValue("--border").trim(),
+                card: style.getPropertyValue("--card").trim()
+            };
+        }
+
+        const performanceCtx = document.getElementById("performanceChart").getContext("2d");
+
+        const performanceChart = new Chart(performanceCtx, {
+            type: "line",
+            data: {
+                labels: ["10:00", "10:10", "10:20", "10:30", "10:40", "10:50", "Now"],
+                datasets: [
+                    {
+                        label: "Crop Health",
+                        data: [76, 78, 81, 83, 84, 87, 87],
+                        borderColor: "#32d978",
+                        backgroundColor: "rgba(50,217,120,.09)",
+                        borderWidth: 3,
+                        pointRadius: 3,
+                        tension: .45,
+                        fill: true
+                    },
+                    {
+                        label: "Irrigation",
+                        data: [60, 64, 62, 69, 67, 71, 68],
+                        borderColor: "#8ca993",
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        tension: .45,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 600 },
+                interaction: { intersect: false, mode: "index" },
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            color: getChartColors().text,
+                            usePointStyle: true,
+                            padding: 18
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: getChartColors().text,
+                            font: { size: 9 }
+                        }
+                    },
+                    y: {
+                        min: 40,
+                        max: 100,
+                        grid: { color: getChartColors().grid },
+                        ticks: {
+                            color: getChartColors().text,
+                            font: { size: 9 },
+                            callback: function (value) {
+                                return value + "%";
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        /* CROP DISTRIBUTION */
+        const cropCtx = document.getElementById("cropChart").getContext("2d");
+
+        const cropChart = new Chart(cropCtx, {
+            type: "doughnut",
+            data: {
+                labels: ["Rice", "Potato", "Tomato", "Corn", "Other"],
+                datasets: [{
+                    data: [35, 22, 18, 15, 10],
+                    backgroundColor: [
+                        "#20c968",
+                        "#42d77b",
+                        "#69e594",
+                        "#91edaf",
+                        "#bce9ca"
+                    ],
+                    borderWidth: 3,
+                    borderColor: getChartColors().card
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "68%",
+                animation: {
+                    animateRotate: true,
+                    duration: 1300
+                },
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            color: getChartColors().text,
+                            usePointStyle: true,
+                            padding: 13,
+                            font: { size: 9 }
+                        }
+                    }
+                }
+            }
+        });
+
+        function updateChartTheme() {
+            const colors = getChartColors();
+
+            performanceChart.options.plugins.legend.labels.color = colors.text;
+            performanceChart.options.scales.x.ticks.color = colors.text;
+            performanceChart.options.scales.y.ticks.color = colors.text;
+            performanceChart.options.scales.y.grid.color = colors.grid;
+
+            cropChart.options.plugins.legend.labels.color = colors.text;
+            cropChart.data.datasets[0].borderColor = colors.card;
+
+            performanceChart.update("none");
+            cropChart.update("none");
+        }
+
+        /* LIVE CHART LOOP — DEMONSTRATION DATA */
+        function updateChart() {
+            const now = new Date().toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+
+            performanceChart.data.labels.push(now);
+            performanceChart.data.datasets[0].data.push(health);
+            performanceChart.data.datasets[1].data.push(water);
+
+            if (performanceChart.data.labels.length > 8) {
+                performanceChart.data.labels.shift();
+
+                performanceChart.data.datasets.forEach(function (dataset) {
+                    dataset.data.shift();
+                });
+            }
+
+            performanceChart.update("none");
+        }
+
+        /* ACTIVITY */
+        const activityMessages = {
+            en: [
+                "Field A irrigation updated.",
+                "Crop health sample updated.",
+                "Weather sample synchronized.",
+                "Soil moisture sample updated.",
+                "Water pump status checked.",
+                "Harvest progress sample updated."
+            ],
+            bn: [
+                "জমি A-এর সেচ আপডেট হয়েছে।",
+                "ফসলের স্বাস্থ্য সম্পর্কিত নমুনা তথ্য আপডেট হয়েছে।",
+                "আবহাওয়ার নমুনা তথ্য সিঙ্ক হয়েছে।",
+                "মাটির আর্দ্রতার নমুনা তথ্য আপডেট হয়েছে।",
+                "পানির পাম্পের অবস্থা পরীক্ষা করা হয়েছে।",
+                "ফসল সংগ্রহের নমুনা অগ্রগতি আপডেট হয়েছে।"
+            ]
+        };
+
+        function addActivity() {
+            const box = document.getElementById("activity");
+            const list = activityMessages[currentLanguage];
+            const message = list[Math.floor(Math.random() * list.length)];
+
+            const row = document.createElement("div");
+            row.className = "activity-row";
+
+            const dot = document.createElement("div");
+            dot.className = "activity-dot";
+
+            const content = document.createElement("div");
+
+            const text = document.createElement("div");
+            text.className = "activity-text";
+            text.textContent = message;
+
+            const time = document.createElement("div");
+            time.className = "activity-time";
+            time.textContent = currentLanguage === "bn" ? "এইমাত্র" : "Just now";
+
+            content.appendChild(text);
+            content.appendChild(time);
+            row.appendChild(dot);
+            row.appendChild(content);
+            box.prepend(row);
+
+            while (box.children.length > 5) {
+                box.lastElementChild.remove();
+            }
+        }
+
+        /* HEARTBEAT */
+        function heartbeat() {
+            document.querySelectorAll(".live-dot").forEach(function (dot) {
+                dot.animate(
+                    [
+                        { transform: "scale(1)" },
+                        { transform: "scale(1.35)" },
+                        { transform: "scale(1)" }
+                    ],
+                    { duration: 900 }
+                );
+            });
+        }
+
+        /* INITIALIZE */
+        applyTheme(localStorage.getItem("greenHarvestTheme") || "dark");
+        setLanguage(currentLanguage);
+
+        /* PERIODIC DEMO UPDATES; NOT REAL HARDWARE SENSOR DATA */
+        setInterval(function () {
+            updateLiveNumbers();
+            updateFields();
+            updateChart();
+            heartbeat();
+        }, 4000);
+
+        setInterval(function () {
+            addActivity();
+        }, 6500);
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,552 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Smart Harvest{% endblock %}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    {% block extra_css %}{% endblock %}
+
+    <style>
+        :root {
+            --primary: #14532d;
+            --primary-light: #166534;
+            --bg: #f4f8f3;
+            --surface: #ffffff;
+            --text: #17251b;
+            --muted: #647067;
+            --border: #dce7dc;
+            --shadow: rgba(0, 0, 0, 0.12);
+        }
+
+        [data-theme="dark"] {
+            --primary: #166534;
+            --primary-light: #86efac;
+            --bg: #07130c;
+            --surface: #102218;
+            --text: #e8f5e9;
+            --muted: #a7b9aa;
+            --border: #284632;
+            --shadow: rgba(0, 0, 0, 0.35);
+        }
+
+        * { box-sizing: border-box; }
+
+        html {
+            min-height: 100%;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+            transition: background .3s, color .3s;
+        }
+
+        a { text-decoration: none; }
+        button { font: inherit; }
+
+        .top-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 20px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 3px 15px var(--shadow);
+        }
+
+        .nav-left, .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand, .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--primary-light);
+            font-size: 20px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .brand img {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .menu-toggle, .nav-btn, .sidebar-close {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            min-height: 42px;
+            padding: 9px 13px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            background: var(--surface);
+            cursor: pointer;
+            transition: .2s;
+            white-space: nowrap;
+        }
+
+        .menu-toggle {
+            width: 44px;
+            padding: 8px;
+            background: var(--bg);
+        }
+
+        .nav-btn:hover, .menu-toggle:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-1px);
+        }
+
+        .login-btn, .primary-btn {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .login-btn:hover, .primary-btn:hover {
+            background: var(--primary-light);
+        }
+
+        .nav-btn svg, .menu-toggle svg {
+            width: 19px;
+            height: 19px;
+        }
+
+        .notification-wrap { position: relative; }
+
+        .notification-badge {
+            position: absolute;
+            top: -6px;
+            right: -5px;
+            display: none;
+            min-width: 19px;
+            height: 19px;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            color: white;
+            background: #dc2626;
+            border: 2px solid var(--surface);
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .sidebar-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 1090;
+            background: rgba(0, 0, 0, .48);
+            opacity: 0;
+            visibility: hidden;
+            transition: .3s;
+        }
+
+        .sidebar-backdrop.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .slide-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1100;
+            display: flex;
+            flex-direction: column;
+            width: 290px;
+            max-width: 85vw;
+            height: 100vh;
+            height: 100dvh;
+            padding: 20px 15px;
+            overflow-y: auto;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            box-shadow: 8px 0 30px var(--shadow);
+            transform: translateX(-105%);
+            transition: transform .35s ease;
+        }
+
+        .slide-sidebar.open { transform: translateX(0); }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 5px 5px 18px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-brand { font-size: 18px; }
+        .sidebar-brand img { width: 36px; height: 36px; object-fit: contain; }
+
+        .sidebar-close { width: 38px; min-height: 38px; padding: 8px; }
+
+        .sidebar-label {
+            padding: 10px 12px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            margin: 3px 0;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: .2s;
+        }
+
+        .sidebar-link svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+        .sidebar-link:hover, .sidebar-link.active {
+            color: white;
+            background: var(--primary);
+            transform: translateX(3px);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 18px 10px 5px;
+            color: var(--muted);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .page-content {
+            min-height: calc(100vh - 140px);
+            overflow: visible;
+        }
+
+        .site-footer {
+            padding: 22px 15px;
+            margin-top: 30px;
+            color: var(--muted);
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .site-footer p { margin: 0; }
+
+        @media (max-width: 760px) {
+            .top-navbar { padding: 9px; gap: 6px; }
+            .nav-left, .nav-right { gap: 5px; }
+            .brand { font-size: 16px; gap: 5px; }
+            .brand img { width: 33px; height: 33px; }
+            .menu-toggle { width: 38px; min-height: 38px; }
+            .nav-btn { min-height: 38px; padding: 8px; }
+            .nav-btn .btn-text { display: none; }
+            .nav-btn svg { width: 17px; height: 17px; }
+        }
+
+        @media (max-width: 390px) {
+            .brand { font-size: 14px; }
+            .brand img { width: 27px; height: 27px; }
+            .nav-right { gap: 3px; }
+            .nav-btn { padding: 6px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+                animation-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<header class="top-navbar">
+    <div class="nav-left">
+        <button class="menu-toggle" id="sidebarToggle"
+                type="button" aria-label="Open navigation menu"
+                aria-controls="slideSidebar" aria-expanded="false">
+            <i data-lucide="menu"></i>
+        </button>
+
+        <a href="{% url 'index' %}" class="brand">
+            <img src="{% static 'images/logo.png' %}"
+                 alt="Smart Harvest Logo"
+                 onerror="this.style.display='none'">
+            <span>Smart Harvest</span>
+        </a>
+    </div>
+
+    <div class="nav-right">
+        {% if request.user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" class="nav-btn">
+                <i data-lucide="layout-dashboard"></i>
+                <span class="btn-text" data-en="Dashboard" data-bn="ড্যাশবোর্ড">Dashboard</span>
+            </a>
+
+            <div class="notification-wrap">
+                <a href="{% url 'dashboard' %}#notifications"
+                   class="nav-btn" aria-label="Notifications"
+                   title="Notifications">
+                    <i data-lucide="bell"></i>
+                    <span class="btn-text" data-en="Alerts" data-bn="নোটিফিকেশন">Alerts</span>
+                    <span class="notification-badge" id="notificationBadge">0</span>
+                </a>
+            </div>
+
+            <a href="{% url 'farmers' %}" class="nav-btn"
+               title="Chat with farmers and buyers">
+                <i data-lucide="messages-square"></i>
+                <span class="btn-text" data-en="Chat" data-bn="চ্যাট">Chat</span>
+            </a>
+
+            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="nav-btn login-btn">
+                    <i data-lucide="log-out"></i>
+                    <span class="btn-text" data-en="Logout" data-bn="লগআউট">Logout</span>
+                </button>
+            </form>
+        {% else %}
+            <a href="{% url 'register' %}" class="nav-btn">
+                <i data-lucide="user-plus"></i>
+                <span class="btn-text" data-en="Register" data-bn="নিবন্ধন">Register</span>
+            </a>
+
+            <a href="{% url 'login' %}" class="nav-btn login-btn">
+                <i data-lucide="log-in"></i>
+                <span class="btn-text" data-en="Login" data-bn="লগইন">Login</span>
+            </a>
+        {% endif %}
+
+        <button class="nav-btn" id="languageToggle" type="button"
+                aria-label="Change language">
+            <i data-lucide="languages"></i>
+            <span id="languageLabel">বাংলা</span>
+        </button>
+
+        <button class="nav-btn" id="themeToggle" type="button"
+                aria-label="Toggle dark mode">
+            <i data-lucide="moon" id="themeIcon"></i>
+        </button>
+    </div>
+</header>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<aside class="slide-sidebar" id="slideSidebar"
+       aria-label="Main navigation" aria-hidden="true">
+    <div class="sidebar-header">
+        <a href="{% url 'index' %}" class="sidebar-brand">
+            <img src="{% static 'images/logo.png' %}" alt="Logo"
+                 onerror="this.style.display='none'">
+            <span>Smart Harvest</span>
+        </a>
+        <button class="sidebar-close" id="sidebarClose"
+                type="button" aria-label="Close navigation menu">
+            <i data-lucide="x"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-label" data-en="Navigation" data-bn="নেভিগেশন">Navigation</div>
+
+    <nav>
+        <a href="{% url 'index' %}" class="sidebar-link">
+            <i data-lucide="house"></i><span data-en="Home" data-bn="হোম">Home</span>
+        </a>
+        <a href="{% url 'dashboard' %}" class="sidebar-link">
+            <i data-lucide="layout-dashboard"></i><span data-en="Dashboard" data-bn="ড্যাশবোর্ড">Dashboard</span>
+        </a>
+        <a href="{% url 'harvest' %}" class="sidebar-link">
+            <i data-lucide="wheat"></i><span data-en="Harvest" data-bn="ফসল সংগ্রহ">Harvest</span>
+        </a>
+        <a href="{% url 'irrigation' %}" class="sidebar-link">
+            <i data-lucide="droplets"></i><span data-en="Irrigation" data-bn="সেচ ব্যবস্থাপনা">Irrigation</span>
+        </a>
+        <a href="{% url 'weather' %}" class="sidebar-link">
+            <i data-lucide="cloud-sun"></i><span data-en="Weather" data-bn="আবহাওয়া">Weather</span>
+        </a>
+        <a href="{% url 'storage' %}" class="sidebar-link">
+            <i data-lucide="warehouse"></i><span data-en="Storage" data-bn="সংরক্ষণ">Storage</span>
+        </a>
+        <a href="{% url 'analytics' %}" class="sidebar-link">
+            <i data-lucide="chart-no-axes-combined"></i><span data-en="Analytics" data-bn="বিশ্লেষণ">Analytics</span>
+        </a>
+        <a href="{% url 'water_management' %}" class="sidebar-link">
+            <i data-lucide="waves"></i><span data-en="Water Management" data-bn="পানি ব্যবস্থাপনা">Water Management</span>
+        </a>
+        <a href="{% url 'farmers' %}" class="sidebar-link">
+            <i data-lucide="users"></i><span data-en="Farmers" data-bn="কৃষক">Farmers</span>
+        </a>
+        <a href="{% url 'buyers' %}" class="sidebar-link">
+            <i data-lucide="shopping-basket"></i><span data-en="Buyers" data-bn="ক্রেতা">Buyers</span>
+        </a>
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'farmers' %}" class="sidebar-link">
+            <i data-lucide="messages-square"></i><span data-en="Direct Chat" data-bn="সরাসরি চ্যাট">Direct Chat</span>
+        </a>
+        {% endif %}
+        <a href="{% url 'settings' %}" class="sidebar-link">
+            <i data-lucide="settings"></i><span data-en="Settings" data-bn="সেটিংস">Settings</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        Smart Harvest &copy; {% now "Y" %}
+    </div>
+</aside>
+
+<main class="page-content">
+    {% block content %}{% endblock %}
+</main>
+
+{% block footer %}
+<footer class="site-footer">
+    <p>
+        &copy; {% now "Y" %} Smart Harvest.
+        <span data-en="All rights reserved." data-bn="সর্বস্বত্ব সংরক্ষিত।">
+            All rights reserved.
+        </span>
+    </p>
+</footer>
+{% endblock %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const sidebar = document.getElementById("slideSidebar");
+    const toggle = document.getElementById("sidebarToggle");
+    const close = document.getElementById("sidebarClose");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    const themeToggle = document.getElementById("themeToggle");
+    const themeIcon = document.getElementById("themeIcon");
+    const languageToggle = document.getElementById("languageToggle");
+    const languageLabel = document.getElementById("languageLabel");
+
+    function refreshIcons() {
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    function openSidebar() {
+        sidebar.classList.add("open");
+        backdrop.classList.add("show");
+        sidebar.setAttribute("aria-hidden", "false");
+        toggle.setAttribute("aria-expanded", "true");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeSidebar() {
+        sidebar.classList.remove("open");
+        backdrop.classList.remove("show");
+        sidebar.setAttribute("aria-hidden", "true");
+        toggle.setAttribute("aria-expanded", "false");
+        document.body.style.overflow = "";
+    }
+
+    toggle.addEventListener("click", function () {
+        sidebar.classList.contains("open") ? closeSidebar() : openSidebar();
+    });
+    close.addEventListener("click", closeSidebar);
+    backdrop.addEventListener("click", closeSidebar);
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") closeSidebar();
+    });
+
+    const currentPath = location.pathname.replace(/\/+$/, "") || "/";
+    document.querySelectorAll(".sidebar-link").forEach(function (link) {
+        const path = new URL(link.href).pathname.replace(/\/+$/, "") || "/";
+        if (path === currentPath) {
+            link.classList.add("active");
+            link.setAttribute("aria-current", "page");
+        }
+    });
+
+    function applyTheme(theme) {
+        document.documentElement.setAttribute("data-theme", theme);
+        themeIcon.setAttribute("data-lucide", theme === "dark" ? "sun" : "moon");
+        themeToggle.setAttribute("aria-label",
+            theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+        try { localStorage.setItem("smartHarvestTheme", theme); } catch (e) {}
+        refreshIcons();
+    }
+
+    let savedTheme = "light";
+    try { savedTheme = localStorage.getItem("smartHarvestTheme") || "light"; } catch (e) {}
+    applyTheme(savedTheme);
+
+    themeToggle.addEventListener("click", function () {
+        const current = document.documentElement.getAttribute("data-theme");
+        applyTheme(current === "dark" ? "light" : "dark");
+    });
+
+    function applyLanguage(language) {
+        document.documentElement.setAttribute("lang", language === "bn" ? "bn" : "en");
+
+        document.querySelectorAll("[data-en][data-bn]").forEach(function (element) {
+            element.textContent = language === "bn"
+                ? element.getAttribute("data-bn")
+                : element.getAttribute("data-en");
+        });
+
+        languageLabel.textContent = language === "bn" ? "English" : "বাংলা";
+        try { localStorage.setItem("smartHarvestLanguage", language); } catch (e) {}
+    }
+
+    let savedLanguage = "en";
+    try { savedLanguage = localStorage.getItem("smartHarvestLanguage") || "en"; } catch (e) {}
+    applyLanguage(savedLanguage);
+
+    languageToggle.addEventListener("click", function () {
+        const current = document.documentElement.getAttribute("lang");
+        applyLanguage(current === "bn" ? "en" : "bn");
+    });
+
+    /*
+      Notification badge:
+      It can display a count when your Django view passes unread_count.
+      To keep it simple, the count is injected below by Django.
+    */
+    const badge = document.getElementById("notificationBadge");
+    if (badge) {
+        const count = Number(badge.dataset.count || 0);
+        if (count > 0) {
+            badge.textContent = count > 99 ? "99+" : count;
+            badge.style.display = "inline-flex";
+        }
+    }
+
+    refreshIcons();
+});
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

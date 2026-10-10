@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Storage Management | Smart Harvest{% endblock %}
+
+{% block extra_css %}
+<style>
+.sm-page{padding:30px 5%;min-height:80vh;background:var(--bg,#f7faf7);color:var(--text,#20352a)}
+.sm-page *{box-sizing:border-box}
+.sm-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;margin-bottom:25px}
+.sm-head h1{font-size:clamp(26px,4vw,36px);font-weight:800;margin:0 0 8px}
+.sm-head p{color:var(--muted,#718078);margin:0;line-height:1.6}
+.sm-btn{display:inline-flex;align-items:center;justify-content:center;background:#238344;color:white;border:0;padding:12px 18px;border-radius:10px;font-weight:700;text-decoration:none;cursor:pointer;transition:.25s}
+.sm-btn:hover{background:#176b32;transform:translateY(-2px);color:white}
+.sm-btn.alt{background:#e5f5e8;color:#176b32}
+.sm-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-bottom:22px}
+.sm-card{background:var(--card-bg,#fff);border:1px solid var(--border,#e5ece6);border-radius:18px;padding:22px;box-shadow:0 8px 25px #163b2010;animation:smRise .5s both;transition:.25s}
+.sm-card:hover{box-shadow:0 14px 30px #163b2017}
+.sm-card:nth-child(2){animation-delay:.1s}.sm-card:nth-child(3){animation-delay:.2s}
+.sm-icon{float:right;font-size:25px;padding:10px;background:#e9f7ec;border-radius:12px}
+.sm-label{font-size:13px;color:var(--muted,#718078)}
+.sm-number{font-size:32px;font-weight:800;margin:13px 0 6px}
+.sm-muted{font-size:12px;color:var(--muted,#718078);line-height:1.6}
+.sm-layout{display:grid;grid-template-columns:.9fr 1.1fr;gap:22px}
+.sm-card h2{font-size:19px;margin:0 0 8px}
+.sm-form{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+.sm-field label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
+.sm-field input,.sm-field select,.sm-field textarea{width:100%;padding:12px;border:1px solid var(--border,#dce5dd);border-radius:10px;background:var(--input-bg,#fff);color:var(--text,#20352a);font:inherit}
+.sm-field input:focus,.sm-field select:focus{outline:2px solid #23834455;border-color:#238344}
+.sm-full{grid-column:1/-1}
+.sm-table-wrap{overflow-x:auto}
+.sm-table{width:100%;border-collapse:collapse;min-width:510px;font-size:13px}
+.sm-table th,.sm-table td{padding:14px 9px;text-align:left;border-bottom:1px solid var(--border,#e5ece6)}
+.sm-table th{font-size:12px;color:var(--muted,#718078)}
+.sm-status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:700;background:#e1f5e5;color:#176b32}
+.sm-status.low{background:#fff0d9;color:#9a5b00}
+.sm-empty{padding:20px 0;color:var(--muted,#718078);font-size:13px;line-height:1.7}
+.sm-bar{height:8px;background:#e9eee9;border-radius:20px;overflow:hidden;margin-top:10px}
+.sm-bar span{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,#238344,#85d66e);animation:smGrow 1s ease}
+[data-theme="dark"] .sm-page{--text:#e5f2e8;--muted:#afc1b4;--card-bg:#18251c;--border:#2b3c30;--input-bg:#132017}
+[data-theme="dark"] .sm-status{background:#233d2b;color:#a4e5b1}
+@keyframes smRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes smGrow{from{width:0}}
+@media(max-width:850px){.sm-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.sm-layout{grid-template-columns:1fr}}
+@media(max-width:550px){.sm-page{padding:22px 4%}.sm-grid{grid-template-columns:1fr}.sm-form{grid-template-columns:1fr}.sm-full{grid-column:auto}.sm-card{padding:17px}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sm-page">
+    <header class="sm-head">
+        <div>
+            <h1>🏬 Storage Management</h1>
+            <p>Track stored crops, inventory levels and warehouse capacity.</p>
+        </div>
+        <a href="#add-storage" class="sm-btn">＋ Add Storage Record</a>
+    </header>
+
+    <div class="sm-grid">
+        <article class="sm-card">
+            <span class="sm-icon">🌾</span>
+            <div class="sm-label">Stored Products</div>
+            <div class="sm-number">{{ storage_records|length|default:"0" }}</div>
+            <div class="sm-muted">Records supplied by the Django view.</div>
+        </article>
+
+        <article class="sm-card">
+            <span class="sm-icon">📦</span>
+            <div class="sm-label">Total Quantity</div>
+            <div class="sm-number">— <small style="font-size:13px">kg</small></div>
+            <div class="sm-muted">Add quantity aggregation in views.py to show the real total.</div>
+        </article>
+
+        <article class="sm-card">
+            <span class="sm-icon">🌡️</span>
+            <div class="sm-label">Storage Conditions</div>
+            <div class="sm-number" style="font-size:25px">Monitor</div>
+            <div class="sm-muted">Connect temperature and humidity sensors for live readings.</div>
+        </article>
+    </div>
+
+    <div class="sm-layout">
+        <section class="sm-card" id="add-storage">
+            <h2>＋ Add Inventory</h2>
+            <p class="sm-muted">Create a storage record. A matching Django POST handler and model are needed to save it.</p>
+
+            <form method="POST" class="sm-form">
+                {% csrf_token %}
+                <div class="sm-field">
+                    <label for="sm-product">Product Name</label>
+                    <input id="sm-product" name="product_name" placeholder="e.g. Rice" required>
+                </div>
+
+                <div class="sm-field">
+                    <label for="sm-quantity">Quantity (kg)</label>
+                    <input id="sm-quantity" name="quantity" type="number" min="0.1" step="0.1" required>
+                </div>
+
+                <div class="sm-field">
+                    <label for="sm-location">Storage Location</label>
+                    <input id="sm-location" name="location" placeholder="Warehouse A" required>
+                </div>
+
+                <div class="sm-field">
+                    <label for="sm-status">Storage Status</label>
+                    <select id="sm-status" name="status">
+                        <option value="available">Available</option>
+                        <option value="low">Low stock</option>
+                        <option value="reserved">Reserved</option>
+                    </select>
+                </div>
+
+                <div class="sm-field sm-full">
+                    <label for="sm-notes">Notes</label>
+                    <textarea id="sm-notes" name="notes" rows="3" placeholder="Optional storage notes"></textarea>
+                </div>
+
+                <div class="sm-full">
+                    <button type="submit" class="sm-btn">Save Record</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="sm-card">
+            <h2>📋 Inventory Records</h2>
+            <p class="sm-muted">Your stored product records will appear here.</p>
+
+            {% if storage_records %}
+            <div class="sm-table-wrap">
+                <table class="sm-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in storage_records %}
+                        <tr>
+                            <td>{{ item.product_name }}</td>
+                            <td>{{ item.quantity }} kg</td>
+                            <td>{{ item.location }}</td>
+                            <td>
+                                <span class="sm-status {% if item.status == 'low' %}low{% endif %}">
+                                    {{ item.get_status_display|default:item.status|default:"Available" }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="sm-empty">
+                <div style="font-size:38px;margin-bottom:10px">📦</div>
+                <strong>No storage records yet</strong>
+                <p>Add your first record using the form. Records appear after the view loads them from the database.</p>
+            </div>
+            {% endif %}
+        </section>
+    </div>
+
+    <section class="sm-card" style="margin-top:22px">
+        <h2>🌱 Storage Best Practices</h2>
+        <div class="sm-grid" style="margin:18px 0 0">
+            <div>
+                <strong>Keep it dry</strong>
+                <p class="sm-muted">Monitor moisture and prevent water from entering storage areas.</p>
+                <div class="sm-bar"><span style="width:85%"></span></div>
+            </div>
+            <div>
+                <strong>Check temperature</strong>
+                <p class="sm-muted">Use suitable temperature ranges for each crop and storage method.</p>
+                <div class="sm-bar"><span style="width:70%"></span></div>
+            </div>
+            <div>
+                <strong>Track stock</strong>
+                <p class="sm-muted">Update inventory whenever produce is added, sold or removed.</p>
+                <div class="sm-bar"><span style="width:92%"></span></div>
+            </div>
+        </div>
+        <a class="sm-btn alt" href="{% url 'analytics' %}">View Analytics</a>
+        <a class="sm-btn alt" href="{% url 'dashboard' %}" style="margin-left:8px">Dashboard</a>
+    </section>
+</div>
+{% endblock %}

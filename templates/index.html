@@ -1,0 +1,936 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Smart Harvest | Smart Agriculture
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* =========================
+   HOME PAGE
+========================= */
+.home-page {
+    width: 100%;
+    overflow: hidden;
+    background: var(--bg, #ffffff);
+    color: var(--text, #17251b);
+}
+
+.home-page * {
+    box-sizing: border-box;
+}
+
+/* =========================
+   HERO SLIDER
+========================= */
+.hero {
+    width: 90%;
+    height: 550px;
+    margin: 25px auto;
+    border-radius: 18px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-image: url("{% static 'images/cow.jpg' %}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: opacity 0.3s ease;
+}
+
+.hero.changing {
+    opacity: 0.65;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(10, 54, 28, 0.92) 0%,
+        rgba(10, 54, 28, 0.70) 35%,
+        rgba(10, 54, 28, 0.30) 70%,
+        rgba(10, 54, 28, 0.05) 100%
+    );
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    width: min(600px, 75%);
+    margin-left: 70px;
+    color: white;
+}
+
+.small-title {
+    color: #b8e5c1;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+}
+
+.hero-content h1 {
+    font-size: 48px;
+    line-height: 1.15;
+    font-weight: 800;
+    margin: 0 0 20px;
+}
+
+.hero-description {
+    max-width: 520px;
+    font-size: 16px;
+    line-height: 1.7;
+    color: #eeeeee;
+    margin-bottom: 30px;
+}
+
+.hero-buttons {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.primary-btn,
+.secondary-btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 13px 25px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s ease;
+    cursor: pointer;
+}
+
+.primary-btn {
+    background: #2f8f46;
+    color: #ffffff;
+    border: 1px solid #2f8f46;
+}
+
+.primary-btn:hover {
+    background: #247a3d;
+    border-color: #247a3d;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+.secondary-btn {
+    background: transparent;
+    border: 1px solid #ffffff;
+    color: #ffffff;
+}
+
+.secondary-btn:hover {
+    background: #ffffff;
+    color: #247a3d;
+}
+
+/* =========================
+   SLIDER ARROWS
+========================= */
+.slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    width: 46px;
+    height: 46px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333333;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.25s ease;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+}
+
+.slider-arrow:hover {
+    background: #ffffff;
+    transform: translateY(-50%) scale(1.08);
+}
+
+.left-arrow {
+    left: 20px;
+}
+
+.right-arrow {
+    right: 20px;
+}
+
+/* =========================
+   SLIDER DOTS
+========================= */
+.slider-dots {
+    position: absolute;
+    z-index: 5;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.55);
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.dot.active-dot {
+    width: 24px;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+/* =========================
+   ABOUT SECTION
+========================= */
+.about-section {
+    padding: 75px 7%;
+    background: #ffffff;
+}
+
+.about-container {
+    max-width: 1200px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 55px;
+    align-items: center;
+}
+
+.about-content small {
+    color: #2f8f46;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.about-content h2 {
+    font-size: 32px;
+    line-height: 1.3;
+    color: #1f2937;
+    margin: 10px 0 18px;
+}
+
+.about-content p {
+    color: #6b7280;
+    font-size: 15px;
+    line-height: 1.8;
+    margin-bottom: 12px;
+}
+
+.about-content .primary-btn {
+    margin-top: 12px;
+}
+
+.about-image {
+    width: 100%;
+    min-height: 340px;
+    border-radius: 18px;
+    background-image: url("{% static 'images/istockphoto-2227271272-612x612.jpg' %}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================
+   FEATURES
+========================= */
+.features {
+    padding: 75px 7%;
+    background: #f7faf7;
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 45px;
+}
+
+.section-title p {
+    color: #2f8f46;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
+.section-title h2 {
+    font-size: 30px;
+    line-height: 1.35;
+    color: #1f2937;
+    margin: 0 0 8px;
+}
+
+.section-title span {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.feature-container {
+    max-width: 1200px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 25px;
+}
+
+.feature-card {
+    padding: 30px 22px;
+    background: #ffffff;
+    text-align: center;
+    border-radius: 14px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+    transition: 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+    font-size: 35px;
+    margin-bottom: 15px;
+}
+
+.feature-card h3 {
+    color: #247a3d;
+    font-size: 18px;
+    line-height: 1.4;
+    margin: 0 0 10px;
+}
+
+.feature-card p {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* =========================
+   CONTACT
+========================= */
+.home-contact {
+    padding: 65px 7%;
+    background: #ffffff;
+    text-align: center;
+}
+
+.home-contact h2 {
+    font-size: 30px;
+    line-height: 1.4;
+    color: #1f2937;
+    margin: 0 0 10px;
+}
+
+.home-contact p {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.contact-info {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.contact-item {
+    padding: 12px 20px;
+    background: #f7faf7;
+    border-radius: 8px;
+    color: #526158;
+    font-size: 14px;
+}
+
+/* =========================
+   DARK MODE
+========================= */
+[data-theme="dark"] .home-page {
+    background: #101713;
+    color: #e8f0ea;
+}
+
+[data-theme="dark"] .home-page .about-section,
+[data-theme="dark"] .home-page .home-contact {
+    background: #101713;
+}
+
+[data-theme="dark"] .home-page .about-content h2,
+[data-theme="dark"] .home-page .section-title h2,
+[data-theme="dark"] .home-page .home-contact h2 {
+    color: #e8f0ea;
+}
+
+[data-theme="dark"] .home-page .about-content p,
+[data-theme="dark"] .home-page .section-title span,
+[data-theme="dark"] .home-page .home-contact p {
+    color: #b8c6bc;
+}
+
+[data-theme="dark"] .home-page .about-content small,
+[data-theme="dark"] .home-page .section-title p {
+    color: #8fdaa0;
+}
+
+[data-theme="dark"] .home-page .features {
+    background: #131d17;
+}
+
+[data-theme="dark"] .home-page .feature-card {
+    background: #1a271e;
+    border: 1px solid #2a3b2e;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .home-page .feature-card h3 {
+    color: #8fdaa0;
+}
+
+[data-theme="dark"] .home-page .feature-card p {
+    color: #b8c6bc;
+}
+
+[data-theme="dark"] .home-page .contact-item {
+    background: #1a271e;
+    color: #d5e1d8;
+    border: 1px solid #2a3b2e;
+}
+
+/* =========================
+   TABLET
+========================= */
+@media (max-width: 1000px) {
+    .hero {
+        width: 94%;
+        height: 500px;
+    }
+
+    .hero-content {
+        margin-left: 55px;
+    }
+
+    .hero-content h1 {
+        font-size: 42px;
+    }
+
+    .feature-container {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .about-container {
+        gap: 35px;
+    }
+}
+
+/* =========================
+   MOBILE
+========================= */
+@media (max-width: 700px) {
+    .hero {
+        width: 94%;
+        height: 500px;
+        margin: 15px auto;
+        border-radius: 14px;
+        background-position: center;
+    }
+
+    .hero-overlay {
+        background: linear-gradient(
+            90deg,
+            rgba(10, 54, 28, 0.9),
+            rgba(10, 54, 28, 0.55)
+        );
+    }
+
+    .hero-content {
+        width: auto;
+        margin: 0 38px;
+    }
+
+    .hero-content h1 {
+        font-size: 34px;
+    }
+
+    .hero-description {
+        font-size: 14px;
+        line-height: 1.65;
+    }
+
+    .hero-buttons {
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+        padding: 11px 17px;
+        font-size: 14px;
+    }
+
+    .slider-arrow {
+        width: 36px;
+        height: 36px;
+        font-size: 17px;
+    }
+
+    .left-arrow {
+        left: 8px;
+    }
+
+    .right-arrow {
+        right: 8px;
+    }
+
+    .about-section,
+    .features {
+        padding: 55px 6%;
+    }
+
+    .about-container {
+        grid-template-columns: 1fr;
+        gap: 28px;
+    }
+
+    .about-content h2 {
+        font-size: 27px;
+    }
+
+    .about-image {
+        min-height: 250px;
+    }
+
+    .section-title h2 {
+        font-size: 25px;
+    }
+
+    .feature-container {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .feature-card {
+        padding: 25px 20px;
+    }
+
+    .home-contact {
+        padding: 50px 6%;
+    }
+
+    .home-contact h2 {
+        font-size: 25px;
+    }
+
+    .contact-info {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .contact-item {
+        width: 100%;
+        overflow-wrap: anywhere;
+    }
+}
+
+/* =========================
+   SMALL MOBILE
+========================= */
+@media (max-width: 430px) {
+    .hero {
+        height: 520px;
+    }
+
+    .hero-content {
+        margin: 0 30px;
+    }
+
+    .hero-content h1 {
+        font-size: 29px;
+    }
+
+    .small-title {
+        font-size: 11px;
+        letter-spacing: 1.5px;
+    }
+
+    .hero-description {
+        font-size: 13px;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+    }
+
+    .slider-arrow {
+        width: 32px;
+        height: 32px;
+        font-size: 15px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero,
+    .feature-card,
+    .primary-btn,
+    .secondary-btn {
+        transition: none;
+    }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="home-page">
+
+    <!-- HERO SLIDER -->
+    <section class="hero" id="hero">
+
+        <div class="hero-overlay"></div>
+
+        <div class="hero-content">
+            <p class="small-title" id="slide-small-title">
+                SMART AGRICULTURE
+            </p>
+
+            <h1 id="slide-title">
+                Grow Smarter.<br>Harvest Better.
+            </h1>
+
+            <p class="hero-description" id="slide-description">
+                Smart Harvest helps farmers manage crops,
+                irrigation, storage and harvest activities
+                with smart technology.
+            </p>
+
+            <div class="hero-buttons">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="primary-btn">
+                        Get Started
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="primary-btn">
+                        Get Started
+                    </a>
+                    <a href="{% url 'register' %}" class="secondary-btn">
+                        Create Account
+                    </a>
+                {% endif %}
+
+                <a href="#features" class="secondary-btn">
+                    Explore Features
+                </a>
+            </div>
+        </div>
+
+        <button type="button"
+                class="slider-arrow left-arrow"
+                id="prevBtn"
+                aria-label="Previous slide">
+            &#10094;
+        </button>
+
+        <button type="button"
+                class="slider-arrow right-arrow"
+                id="nextBtn"
+                aria-label="Next slide">
+            &#10095;
+        </button>
+
+        <div class="slider-dots" id="sliderDots">
+            <button type="button" class="dot active-dot"
+                    data-slide="0" aria-label="Go to slide 1"></button>
+
+            <button type="button" class="dot"
+                    data-slide="1" aria-label="Go to slide 2"></button>
+
+            <button type="button" class="dot"
+                    data-slide="2" aria-label="Go to slide 3"></button>
+        </div>
+    </section>
+
+
+    <!-- ABOUT -->
+    <section class="about-section" id="about">
+        <div class="about-container">
+
+            <div class="about-content">
+                <small>ABOUT SMART HARVEST</small>
+
+                <h2>Smart Technology for Modern Agriculture</h2>
+
+                <p>
+                    Smart Harvest is designed to help farmers
+                    manage their farming activities using
+                    modern digital technology.
+                </p>
+
+                <p>
+                    From crop management and irrigation to
+                    weather information, storage and harvest
+                    analytics, everything can be managed
+                    from one smart platform.
+                </p>
+
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="primary-btn">
+                        Open Dashboard
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="primary-btn">
+                        Login to Dashboard
+                    </a>
+                {% endif %}
+            </div>
+
+            <div class="about-image"
+                 role="img"
+                 aria-label="Smart agriculture"></div>
+
+        </div>
+    </section>
+
+
+    <!-- FEATURES -->
+    <section class="features" id="features">
+        <div class="section-title">
+            <p>SMART FARMING</p>
+
+            <h2>Everything You Need in One Place</h2>
+
+            <span>
+                Manage your farm smarter with Smart Harvest.
+            </span>
+        </div>
+
+        <div class="feature-container">
+
+            <div class="feature-card">
+                <div class="feature-icon">🌱</div>
+                <h3>Harvest Tracking</h3>
+                <p>
+                    Track your harvest using smart digital
+                    technology and QR codes.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💧</div>
+                <h3>Smart Irrigation</h3>
+                <p>
+                    Monitor soil moisture and manage
+                    irrigation efficiently.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🌦️</div>
+                <h3>Weather Alerts</h3>
+                <p>
+                    Get weather updates and alerts
+                    for better farming decisions.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Harvest Analytics</h3>
+                <p>
+                    Analyze your harvest data through
+                    an easy-to-use dashboard.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- CONTACT -->
+    <section class="home-contact" id="contact">
+        <h2>Let's Grow Smarter Together</h2>
+
+        <p>
+            Smart Harvest brings technology and agriculture
+            together for a smarter future.
+        </p>
+
+        <div class="contact-info">
+            <div class="contact-item">
+                📧 info@smartharvest.com
+            </div>
+
+            <div class="contact-item">
+                📞 +880 1234-567890
+            </div>
+
+            <div class="contact-item">
+                📍 Bangladesh
+            </div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const slides = [
+        {
+            image: "{% static 'images/cow.jpg' %}",
+            smallTitle: "SMART AGRICULTURE",
+            title: "Grow Smarter.<br>Harvest Better.",
+            description:
+                "Smart Harvest helps farmers manage crops, irrigation, storage and harvest activities with smart technology."
+        },
+        {
+            image: "{% static 'images/istockphoto-2227271272-612x612.jpg' %}",
+            smallTitle: "SMART FARMING",
+            title: "Technology for<br>Better Farming.",
+            description:
+                "Monitor your farm, track your crops and make better farming decisions with Smart Harvest."
+        },
+        {
+            image: "{% static 'images/istockphoto-2202480186-612x612.jpg' %}",
+            smallTitle: "SMART IRRIGATION",
+            title: "Save Water.<br>Increase Production.",
+            description:
+                "Monitor soil moisture and manage irrigation efficiently to keep your crops healthy."
+        }
+    ];
+
+    const hero = document.getElementById("hero");
+    const title = document.getElementById("slide-title");
+    const description = document.getElementById("slide-description");
+    const smallTitle = document.getElementById("slide-small-title");
+    const dots = document.querySelectorAll(".dot");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    if (!hero || !title || !description || !smallTitle) {
+        return;
+    }
+
+    let currentSlide = 0;
+    let autoSlide = null;
+    let animationTimer = null;
+
+    // Preload slider images
+    slides.forEach(function (slide) {
+        const image = new Image();
+        image.src = slide.image;
+    });
+
+    function showSlide(index) {
+        currentSlide = (index + slides.length) % slides.length;
+
+        const slide = slides[currentSlide];
+
+        hero.classList.add("changing");
+
+        if (animationTimer) {
+            clearTimeout(animationTimer);
+        }
+
+        animationTimer = setTimeout(function () {
+            hero.style.backgroundImage = 'url("' + slide.image + '")';
+            smallTitle.textContent = slide.smallTitle;
+            title.innerHTML = slide.title;
+            description.textContent = slide.description;
+
+            dots.forEach(function (dot, dotIndex) {
+                dot.classList.toggle(
+                    "active-dot",
+                    dotIndex === currentSlide
+                );
+            });
+
+            hero.classList.remove("changing");
+        }, 180);
+    }
+
+    function startAutoSlide() {
+        clearInterval(autoSlide);
+
+        autoSlide = setInterval(function () {
+            showSlide(currentSlide + 1);
+        }, 4000);
+    }
+
+    function resetAutoSlide() {
+        startAutoSlide();
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener("click", function () {
+            showSlide(currentSlide + 1);
+            resetAutoSlide();
+        });
+    }
+
+    if (prevBtn) {
+        prevBtn.addEventListener("click", function () {
+            showSlide(currentSlide - 1);
+            resetAutoSlide();
+        });
+    }
+
+    dots.forEach(function (dot) {
+        dot.addEventListener("click", function () {
+            const slideIndex = Number(dot.dataset.slide);
+
+            if (Number.isInteger(slideIndex)) {
+                showSlide(slideIndex);
+                resetAutoSlide();
+            }
+        });
+    });
+
+    // Pause automatic sliding while the pointer is over the hero
+    hero.addEventListener("mouseenter", function () {
+        clearInterval(autoSlide);
+    });
+
+    hero.addEventListener("mouseleave", function () {
+        startAutoSlide();
+    });
+
+    // Pause the slider when the browser tab is hidden
+    document.addEventListener("visibilitychange", function () {
+        if (document.hidden) {
+            clearInterval(autoSlide);
+        } else {
+            startAutoSlide();
+        }
+    });
+
+    showSlide(0);
+    startAutoSlide();
+});
+</script>
+{% endblock %}

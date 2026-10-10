@@ -1,0 +1,1090 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f0fdf4">
+
+    <title>Dashboard | Smart Harvest</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'Noto Sans Bengali', 'sans-serif']
+                    },
+                    colors: {
+                        harvest: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Poppins', 'Noto Sans Bengali', sans-serif;
+        }
+
+        .app-layout { min-height: 100vh; }
+
+        .sidebar {
+            width: 260px;
+            transition: transform .3s ease, background-color .3s ease;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            min-width: 0;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 13px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all .25s ease;
+        }
+
+        .sidebar-link:hover {
+            background: #f0fdf4;
+            color: #15803d;
+            transform: translateX(4px);
+        }
+
+        .dark .sidebar-link:hover {
+            background: #1f2937;
+            color: #86efac;
+        }
+
+        .sidebar-link.active {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: white;
+            box-shadow: 0 7px 18px rgba(22, 163, 74, .2);
+        }
+
+        .sidebar-link.active:hover { color: white; }
+
+        .dashboard-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            background: white;
+            transition: transform .25s ease, box-shadow .25s ease;
+            animation: fadeUp .65s ease both;
+        }
+
+        .dark .dashboard-card {
+            background: #111827;
+            border-color: #273449;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(15, 23, 42, .08);
+        }
+
+        .dark .dashboard-card:hover {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, .2);
+        }
+
+        .dashboard-card:nth-child(2) { animation-delay: .08s; }
+        .dashboard-card:nth-child(3) { animation-delay: .16s; }
+        .dashboard-card:nth-child(4) { animation-delay: .24s; }
+
+        .icon-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 15px;
+            font-size: 23px;
+            flex-shrink: 0;
+        }
+
+        .soft-button {
+            transition: transform .2s ease, background-color .2s ease;
+        }
+
+        .soft-button:hover { transform: translateY(-2px); }
+
+        .logout-button {
+            transition: background-color .25s ease, transform .25s ease;
+        }
+
+        .logout-button:hover {
+            background: #fef2f2;
+            transform: translateX(4px);
+        }
+
+        .dark .logout-button:hover {
+            background: rgba(127, 29, 29, .2);
+        }
+
+        .logout-button:active { transform: scale(.98); }
+
+        .profile-avatar { transition: transform .3s ease; }
+
+        .profile-avatar:hover {
+            transform: rotate(-6deg) scale(1.06);
+        }
+
+        .weather-gradient {
+            background: linear-gradient(135deg, #0f766e, #15803d 65%, #65a30d);
+        }
+
+        .progress-track {
+            height: 8px;
+            overflow: hidden;
+            border-radius: 99px;
+            background: #e5e7eb;
+        }
+
+        .dark .progress-track { background: #374151; }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width 1s ease;
+        }
+
+        .live-dot { position: relative; }
+
+        .live-dot::before {
+            content: "";
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            left: -13px;
+            top: 5px;
+            animation: pulseDot 1.8s infinite;
+        }
+
+        .table-row { transition: background-color .2s ease; }
+
+        .table-row:hover { background: #f9fafb; }
+
+        .dark .table-row:hover { background: #1f2937; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, .45); }
+            50% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+        }
+
+        @keyframes floatLeaf {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .floating-leaf { animation: floatLeaf 3s ease-in-out infinite; }
+
+        #sidebarOverlay { display: none; }
+
+        @media (max-width: 1023px) {
+            .sidebar {
+                position: fixed;
+                inset: 0 auto 0 0;
+                z-index: 60;
+                transform: translateX(-100%);
+                height: 100dvh;
+            }
+
+            .sidebar.sidebar-open { transform: translateX(0); }
+
+            .main-content { margin-left: 0; }
+
+            #sidebarOverlay.overlay-open {
+                display: block;
+                position: fixed;
+                inset: 0;
+                z-index: 50;
+                background: rgba(15, 23, 42, .5);
+                backdrop-filter: blur(3px);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 dark:bg-gray-950 dark:text-gray-100 transition-colors duration-300">
+
+<div class="app-layout">
+
+    <div id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar"
+           class="sidebar fixed top-0 left-0 bottom-0 z-[60] bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col">
+
+        <div class="h-[82px] px-5 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 flex-shrink-0">
+            <div class="w-11 h-11 rounded-2xl bg-green-100 dark:bg-green-900/40 flex items-center justify-center text-2xl floating-leaf">
+                🌱
+            </div>
+
+            <div>
+                <h1 class="text-lg font-extrabold tracking-tight text-green-800 dark:text-green-400">
+                    Smart Harvest
+                </h1>
+                <p class="text-[10px] text-gray-400 tracking-[2px] uppercase">
+                    Smart Farming System
+                </p>
+            </div>
+
+            <button onclick="closeSidebar()"
+                    class="lg:hidden ml-auto text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl"
+                    aria-label="Close menu">
+                &times;
+            </button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto px-4 py-5 space-y-1">
+
+            <p class="px-3 mb-3 text-[10px] font-bold text-gray-400 uppercase tracking-[2px]">
+                Main Menu
+            </p>
+
+            <a href="{% url 'dashboard' %}" class="sidebar-link active">
+                <span class="text-lg">📊</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="{% url 'harvest' %}" class="sidebar-link text-gray-600 dark:text-gray-300">
+                <span class="text-lg">🌾</span>
+                <span>Harvest Tracking</span>
+            </a>
+
+            <a href="{% url 'irrigation' %}" class="sidebar-link text-gray-600 dark:text-gray-300">
+                <span class="text-lg">💧</span>
+                <span>Irrigation</span>
+            </a>
+
+            <a href="{% url 'weather' %}" class="sidebar-link text-gray-600 dark:text-gray-300">
+                <span class="text-lg">🌦️</span>
+                <span>Weather Forecast</span>
+            </a>
+
+            <a href="{% url 'storage' %}" class="sidebar-link text-gray-600 dark:text-gray-300">
+                <span class="text-lg">🏬</span>
+                <span>Storage Management</span>
+            </a>
+
+            <a href="{% url 'analytics' %}" class="sidebar-link text-gray-600 dark:text-gray-300">
+                <span class="text-lg">📈</span>
+                <span>Harvest Analytics</span>
+            </a>
+
+            <div class="pt-6">
+                <p class="px-3 mb-3 text-[10px] font-bold text-gray-400 uppercase tracking-[2px]">
+                    Management
+                </p>
+
+                <a href="{% url 'farmers' %}" class="sidebar-link text-gray-600 dark:text-gray-300">
+                    <span class="text-lg">👨‍🌾</span>
+                    <span>Farmers</span>
+                </a>
+
+                <a href="{% url 'buyers' %}" class="sidebar-link text-gray-600 dark:text-gray-300">
+                    <span class="text-lg">🤝</span>
+                    <span>Buyers</span>
+                </a>
+
+                <!-- NEW CHAT OPTION -->
+                <a href="{% url 'farmers' %}"
+                   class="sidebar-link text-gray-600 dark:text-gray-300">
+                    <span class="text-lg">💬</span>
+                    <span>Chat & Messages</span>
+                    <span class="ml-auto text-xs bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 px-2 py-1 rounded-full">
+                        Chat
+                    </span>
+                </a>
+
+                <a href="{% url 'settings' %}" class="sidebar-link text-gray-600 dark:text-gray-300">
+                    <span class="text-lg">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="p-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 space-y-2 flex-shrink-0">
+
+            <a href="{% url 'index' %}"
+               class="sidebar-link text-gray-600 dark:text-gray-300">
+                <span class="text-lg">🏡</span>
+                <span>Back to Home</span>
+            </a>
+
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="logout-button w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 dark:text-red-400 text-sm font-medium">
+                    <span class="text-lg">🚪</span>
+                    <span>Logout</span>
+                    <span class="ml-auto">→</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <!-- TOP NAVBAR -->
+        <header class="sticky top-0 z-40 h-[82px] px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800">
+
+            <div class="flex items-center gap-3 min-w-0">
+                <button onclick="openSidebar()"
+                        class="lg:hidden w-10 h-10 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center text-xl hover:bg-gray-100 dark:hover:bg-gray-800"
+                        aria-label="Open menu">
+                    ☰
+                </button>
+
+                <div class="min-w-0">
+                    <h2 class="text-base sm:text-xl font-bold truncate">
+                        Dashboard Overview
+                    </h2>
+                    <p class="hidden sm:block text-xs text-gray-400 mt-1">
+                        Welcome back! Here's what's happening on your farm.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-4">
+
+                <div class="hidden md:flex items-center gap-1 text-xs text-gray-400">
+                    <span class="live-dot ml-3">System status</span>
+                </div>
+
+                <!-- NEW TOP NAVBAR CHAT BUTTON -->
+                <a href="{% url 'farmers' %}"
+                   class="relative w-10 h-10 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-green-50 dark:hover:bg-gray-800 flex items-center justify-center text-xl soft-button"
+                   title="Chat with Farmers and Buyers"
+                   aria-label="Chat with Farmers and Buyers">
+                    💬
+                </a>
+
+                <!-- THEME TOGGLE -->
+                <button id="themeToggle"
+                        onclick="toggleTheme()"
+                        class="w-10 h-10 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center text-lg soft-button"
+                        aria-label="Toggle dark mode"
+                        title="Toggle dark mode">
+                    🌙
+                </button>
+
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="profile-avatar w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center text-xl ring-2 ring-green-200 dark:ring-green-800">
+                        👨‍🌾
+                    </div>
+
+                    <div class="hidden sm:block">
+                        <p class="text-sm font-semibold">
+                            {{ request.user.first_name|default:request.user.username }}
+                        </p>
+                        <p class="text-[10px] text-gray-400">Smart Farmer</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD BODY -->
+        <main class="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
+
+            <!-- WELCOME BANNER -->
+            <section class="weather-gradient rounded-3xl p-6 sm:p-8 mb-7 text-white relative overflow-hidden">
+                <div class="absolute -right-8 -top-12 w-52 h-52 rounded-full bg-white/10"></div>
+                <div class="absolute right-28 -bottom-20 w-44 h-44 rounded-full bg-white/10"></div>
+                <div class="absolute right-10 top-10 text-6xl opacity-20 floating-leaf hidden sm:block">🌿</div>
+
+                <div class="relative z-10 max-w-2xl">
+                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-xs mb-4">
+                        🌱 Smart Farming Dashboard
+                    </span>
+
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-tight">
+                        Welcome, {{ request.user.first_name|default:request.user.username }}!
+                    </h1>
+
+                    <p class="text-green-50 text-sm mt-3 max-w-xl leading-6">
+                        Monitor your harvest, manage irrigation, and make smarter farming decisions from one place.
+                    </p>
+
+                    <div class="flex flex-wrap gap-3 mt-6">
+                        <a href="{% url 'harvest' %}"
+                           class="soft-button inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-green-800 text-sm font-semibold shadow-lg">
+                            🌾 Track Harvest <span>→</span>
+                        </a>
+
+                        <a href="{% url 'irrigation' %}"
+                           class="soft-button inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white/15 border border-white/30 text-white text-sm font-semibold">
+                            💧 Manage Irrigation
+                        </a>
+
+                        <!-- NEW CHAT BUTTON -->
+                        <a href="{% url 'farmers' %}"
+                           class="soft-button inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white/15 border border-white/30 text-white text-sm font-semibold">
+                            💬 Open Chat
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- KPI CARDS -->
+            <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-5 mb-7">
+
+                <div class="dashboard-card p-5">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Total Harvest</p>
+                            <h3 id="totalHarvest" class="text-2xl font-extrabold mt-3">1,250 kg</h3>
+                            <p class="text-xs text-green-600 mt-2">🌾 Harvest production</p>
+                        </div>
+                        <div class="icon-box bg-green-100 dark:bg-green-900/30">🌾</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card p-5">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Water Used</p>
+                            <h3 id="waterUsed" class="text-2xl font-extrabold mt-3">3,450 L</h3>
+                            <p class="text-xs text-blue-600 mt-2">💧 Irrigation consumption</p>
+                        </div>
+                        <div class="icon-box bg-blue-100 dark:bg-blue-900/30">💧</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card p-5">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Active Crops</p>
+                            <h3 id="activeCrops" class="text-2xl font-extrabold mt-3">8</h3>
+                            <p class="text-xs text-amber-600 mt-2">🌱 Growing crops</p>
+                        </div>
+                        <div class="icon-box bg-amber-100 dark:bg-amber-900/30">🌱</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card p-5">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Stored Produce</p>
+                            <h3 id="storageKg" class="text-2xl font-extrabold mt-3">680 kg</h3>
+                            <p class="text-xs text-purple-600 mt-2">🏬 Available in storage</p>
+                        </div>
+                        <div class="icon-box bg-purple-100 dark:bg-purple-900/30">🏬</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CHART AND WEATHER -->
+            <section class="grid grid-cols-1 xl:grid-cols-3 gap-5 mb-7">
+
+                <div class="dashboard-card p-5 sm:p-6 xl:col-span-2">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+                        <div>
+                            <h3 class="font-bold text-base">Harvest Overview</h3>
+                            <p class="text-xs text-gray-400 mt-1">Monthly harvest performance</p>
+                        </div>
+
+                        <a href="{% url 'analytics' %}"
+                           class="text-xs font-semibold text-green-600 hover:text-green-700">
+                            View Analytics →
+                        </a>
+                    </div>
+
+                    <div class="relative h-[260px] sm:h-[300px]">
+                        <canvas id="harvestChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="dashboard-card p-5 sm:p-6">
+                    <div class="flex items-center justify-between mb-5">
+                        <div>
+                            <h3 class="font-bold text-base">Weather Today</h3>
+                            <p class="text-xs text-gray-400 mt-1">Farm weather overview</p>
+                        </div>
+                        <span class="text-2xl">🌤️</span>
+                    </div>
+
+                    <div class="rounded-2xl bg-sky-50 dark:bg-sky-900/20 p-5 mb-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Temperature</p>
+                                <h3 id="temperature" class="text-4xl font-extrabold mt-2">29°C</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Partly cloudy</p>
+                            </div>
+                            <div class="text-5xl">🌤️</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="rounded-xl bg-gray-50 dark:bg-gray-800 p-3">
+                            <p class="text-xs text-gray-400">Humidity</p>
+                            <p id="humidity" class="font-bold mt-2">68%</p>
+                            <p class="text-xs mt-1">💦 Moisture in air</p>
+                        </div>
+
+                        <div class="rounded-xl bg-gray-50 dark:bg-gray-800 p-3">
+                            <p class="text-xs text-gray-400">Wind Speed</p>
+                            <p id="windSpeed" class="font-bold mt-2">12 km/h</p>
+                            <p class="text-xs mt-1">🍃 Air movement</p>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'weather' %}"
+                       class="block text-center text-xs font-semibold text-green-600 mt-5 hover:text-green-700">
+                        Full Weather Forecast →
+                    </a>
+                </div>
+            </section>
+
+            <!-- SOIL MOISTURE AND IRRIGATION -->
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-7">
+
+                <div class="dashboard-card p-5 sm:p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="font-bold">Soil Moisture</h3>
+                            <p class="text-xs text-gray-400 mt-1">Soil moisture monitoring</p>
+                        </div>
+                        <div class="icon-box bg-cyan-100 dark:bg-cyan-900/30">🪴</div>
+                    </div>
+
+                    <div class="flex items-center gap-6">
+                        <div class="relative w-28 h-28 sm:w-32 sm:h-32 flex-shrink-0">
+                            <svg viewBox="0 0 120 120" class="w-full h-full -rotate-90">
+                                <circle cx="60" cy="60" r="48"
+                                        fill="none" stroke="#e5e7eb" stroke-width="11"/>
+                                <circle id="moistureCircle"
+                                        cx="60" cy="60" r="48"
+                                        fill="none" stroke="#06b6d4" stroke-width="11"
+                                        stroke-linecap="round"
+                                        stroke-dasharray="301.59"
+                                        stroke-dashoffset="108.57"/>
+                            </svg>
+
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span id="soilMoisture" class="text-2xl font-extrabold">64%</span>
+                                <span class="text-[10px] text-gray-400">Moisture</span>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 min-w-0">
+                            <span id="moistureStatus"
+                                  class="inline-flex px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold">
+                                Good Condition
+                            </span>
+
+                            <p class="text-xs text-gray-500 dark:text-gray-400 leading-5 mt-3">
+                                Keep monitoring the soil to maintain healthy crop growth.
+                            </p>
+
+                            <p class="text-xs text-gray-400 mt-3">
+                                Recommended: 40%–70%
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card p-5 sm:p-6">
+                    <div class="flex items-center justify-between mb-5">
+                        <div>
+                            <h3 class="font-bold">Irrigation Status</h3>
+                            <p class="text-xs text-gray-400 mt-1">Watering system overview</p>
+                        </div>
+                        <div class="icon-box bg-blue-100 dark:bg-blue-900/30">🚿</div>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 rounded-2xl bg-blue-50 dark:bg-blue-900/20 mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-xl bg-white dark:bg-gray-800 flex items-center justify-center text-xl">
+                                💧
+                            </div>
+
+                            <div>
+                                <p class="text-sm font-semibold">Irrigation System</p>
+                                <p id="irrigationDescription" class="text-xs text-gray-400 mt-1">
+                                    Check your irrigation schedule
+                                </p>
+                            </div>
+                        </div>
+
+                        <span id="irrigationStatus"
+                              class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">
+                            Scheduled
+                        </span>
+                    </div>
+
+                    <div class="mb-5">
+                        <div class="flex justify-between text-xs mb-2">
+                            <span class="text-gray-500 dark:text-gray-400">Soil moisture level</span>
+                            <span id="moistureLabel" class="font-semibold">64%</span>
+                        </div>
+
+                        <div class="progress-track">
+                            <div id="moistureProgress" class="progress-fill bg-cyan-500" style="width:64%"></div>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'irrigation' %}"
+                       class="soft-button inline-flex items-center justify-center w-full gap-2 px-4 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white text-sm font-semibold">
+                        Manage Irrigation <span>→</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- RECENT HARVEST AND QUICK ACTIONS -->
+            <section class="grid grid-cols-1 xl:grid-cols-3 gap-5 mb-7">
+
+                <div class="dashboard-card xl:col-span-2 overflow-hidden">
+                    <div class="p-5 sm:p-6 flex items-center justify-between gap-3">
+                        <div>
+                            <h3 class="font-bold">Recent Harvest Records</h3>
+                            <p class="text-xs text-gray-400 mt-1">Latest harvest activity</p>
+                        </div>
+
+                        <a href="{% url 'harvest' %}"
+                           class="text-xs font-semibold text-green-600 hover:text-green-700 whitespace-nowrap">
+                            View All →
+                        </a>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-50 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 text-xs">
+                                <tr>
+                                    <th class="px-5 py-3 font-medium">Crop</th>
+                                    <th class="px-5 py-3 font-medium">Quantity</th>
+                                    <th class="px-5 py-3 font-medium">Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                                {% for item in recent_harvests %}
+                                <tr class="table-row">
+                                    <td class="px-5 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-xl">🌾</span>
+                                            <span class="font-medium whitespace-nowrap">
+                                                {{ item.crop_name|default:item.name|default:"Harvest Item" }}
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <td class="px-5 py-4 text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                        {{ item.quantity|default:"—" }}
+                                        {% if item.unit %}{{ item.unit }}{% else %}kg{% endif %}
+                                    </td>
+
+                                    <td class="px-5 py-4">
+                                        <span class="inline-flex px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs">
+                                            {{ item.status|default:"Recorded" }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="px-5 py-10 text-center">
+                                        <div class="text-3xl mb-3">🌱</div>
+                                        <p class="text-sm font-medium">No harvest records yet</p>
+                                        <p class="text-xs text-gray-400 mt-2">
+                                            Your recent harvest records will appear here.
+                                        </p>
+
+                                        <a href="{% url 'harvest' %}"
+                                           class="inline-flex mt-4 px-4 py-2 rounded-xl bg-green-600 text-white text-xs font-semibold">
+                                            Add Harvest
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- QUICK ACTIONS -->
+                <div class="dashboard-card p-5 sm:p-6">
+                    <h3 class="font-bold">Quick Actions</h3>
+                    <p class="text-xs text-gray-400 mt-1 mb-5">
+                        Manage your farm efficiently
+                    </p>
+
+                    <div class="space-y-3">
+
+                        <!-- NEW CHAT QUICK ACTION -->
+                        <a href="{% url 'farmers' %}"
+                           class="soft-button flex items-center gap-3 p-3 rounded-2xl border border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/10">
+                            <div class="icon-box w-11 h-11 bg-green-100 dark:bg-green-900/30">💬</div>
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold">Chat & Messages</p>
+                                <p class="text-xs text-gray-400 mt-1">Connect with farmers and buyers</p>
+                            </div>
+                            <span class="text-gray-400">→</span>
+                        </a>
+
+                        <a href="{% url 'harvest' %}"
+                           class="soft-button flex items-center gap-3 p-3 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-green-200 dark:hover:border-green-800">
+                            <div class="icon-box w-11 h-11 bg-green-100 dark:bg-green-900/30">🌾</div>
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold">Add Harvest</p>
+                                <p class="text-xs text-gray-400 mt-1">Record new produce</p>
+                            </div>
+                            <span class="text-gray-400">→</span>
+                        </a>
+
+                        <a href="{% url 'irrigation' %}"
+                           class="soft-button flex items-center gap-3 p-3 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-blue-200 dark:hover:border-blue-800">
+                            <div class="icon-box w-11 h-11 bg-blue-100 dark:bg-blue-900/30">💧</div>
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold">Irrigation Schedule</p>
+                                <p class="text-xs text-gray-400 mt-1">Manage watering times</p>
+                            </div>
+                            <span class="text-gray-400">→</span>
+                        </a>
+
+                        <a href="{% url 'storage' %}"
+                           class="soft-button flex items-center gap-3 p-3 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-purple-200 dark:hover:border-purple-800">
+                            <div class="icon-box w-11 h-11 bg-purple-100 dark:bg-purple-900/30">🏬</div>
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold">Check Storage</p>
+                                <p class="text-xs text-gray-400 mt-1">View stored produce</p>
+                            </div>
+                            <span class="text-gray-400">→</span>
+                        </a>
+
+                        <a href="{% url 'analytics' %}"
+                           class="soft-button flex items-center gap-3 p-3 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-amber-200 dark:hover:border-amber-800">
+                            <div class="icon-box w-11 h-11 bg-amber-100 dark:bg-amber-900/30">📈</div>
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold">View Analytics</p>
+                                <p class="text-xs text-gray-400 mt-1">Explore farm performance</p>
+                            </div>
+                            <span class="text-gray-400">→</span>
+                        </a>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- FARMING TIP -->
+            <section class="dashboard-card p-5 sm:p-6 mb-6">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-2xl flex-shrink-0">
+                        🌿
+                    </div>
+
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm">Smart Farming Tip</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-6">
+                            Monitor soil moisture before watering your crops. Scheduling irrigation according to crop needs can help reduce water waste.
+                        </p>
+                    </div>
+
+                    <a href="{% url 'weather' %}"
+                       class="soft-button px-4 py-2.5 rounded-xl bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold whitespace-nowrap">
+                        Check Weather →
+                    </a>
+                </div>
+            </section>
+
+            <!-- FOOTER -->
+            <footer class="pt-5 pb-2 border-t border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row justify-between gap-2 text-xs text-gray-400">
+                <p>© <span id="currentYear"></span> Smart Harvest. All rights reserved.</p>
+                <p>🌱 Growing smarter, harvesting better.</p>
+            </footer>
+
+        </main>
+    </div>
+</div>
+
+<!-- JAVASCRIPT -->
+<script>
+    // Mobile sidebar
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    function openSidebar() {
+        sidebar.classList.add('sidebar-open');
+        sidebarOverlay.classList.add('overlay-open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        sidebar.classList.remove('sidebar-open');
+        sidebarOverlay.classList.remove('overlay-open');
+        document.body.style.overflow = '';
+    }
+
+    window.addEventListener('resize', function () {
+        if (window.innerWidth >= 1024) {
+            closeSidebar();
+        }
+    });
+
+    // Dark and light theme
+    function applyTheme(theme) {
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+
+        const themeButton = document.getElementById('themeToggle');
+        if (themeButton) {
+            themeButton.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        try {
+            localStorage.setItem('smartHarvestTheme', theme);
+        } catch (error) {
+            // Theme still works without local storage.
+        }
+    }
+
+    function toggleTheme() {
+        const isDark = document.documentElement.classList.contains('dark');
+        applyTheme(isDark ? 'light' : 'dark');
+        drawHarvestChart();
+    }
+
+    try {
+        const savedTheme = localStorage.getItem('smartHarvestTheme');
+        applyTheme(savedTheme || 'light');
+    } catch (error) {
+        applyTheme('light');
+    }
+
+    // Footer year
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+    // Harvest chart
+    let harvestChart;
+
+    function drawHarvestChart() {
+        const canvas = document.getElementById('harvestChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+
+        const isDark = document.documentElement.classList.contains('dark');
+        const gridColor = isDark ? '#273449' : '#e5e7eb';
+        const labelColor = isDark ? '#9ca3af' : '#6b7280';
+
+        if (harvestChart) {
+            harvestChart.destroy();
+        }
+
+        harvestChart = new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Harvest (kg)',
+                    data: [420, 590, 480, 760, 680, 850, 720, 950, 810, 1050, 900, 1250],
+                    backgroundColor: function (context) {
+                        const chart = context.chart;
+                        const { ctx, chartArea } = chart;
+
+                        if (!chartArea) return '#22c55e';
+
+                        const gradient = ctx.createLinearGradient(
+                            0, chartArea.top, 0, chartArea.bottom
+                        );
+
+                        gradient.addColorStop(0, '#22c55e');
+                        gradient.addColorStop(1, '#bbf7d0');
+                        return gradient;
+                    },
+                    borderRadius: 7,
+                    borderSkipped: false,
+                    maxBarThickness: 28
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: isDark ? '#111827' : '#ffffff',
+                        titleColor: isDark ? '#ffffff' : '#111827',
+                        bodyColor: isDark ? '#d1d5db' : '#374151',
+                        borderColor: gridColor,
+                        borderWidth: 1,
+                        padding: 12,
+                        callbacks: {
+                            label: function (context) {
+                                return context.parsed.y.toLocaleString() + ' kg';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: labelColor,
+                            font: { family: 'Poppins', size: 10 }
+                        },
+                        border: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: gridColor,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: labelColor,
+                            font: { family: 'Poppins', size: 10 },
+                            callback: function (value) {
+                                return value.toLocaleString() + ' kg';
+                            }
+                        },
+                        border: { display: false }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+    }
+
+    drawHarvestChart();
+
+    // Refresh dashboard values using Django API
+    async function updateLiveDashboard() {
+        try {
+            const response = await fetch("{% url 'live_dashboard_api' %}", {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                cache: 'no-store'
+            });
+
+            if (!response.ok) {
+                throw new Error('Dashboard API returned ' + response.status);
+            }
+
+            const data = await response.json();
+
+            if (data.total_harvest !== undefined) {
+                document.getElementById('totalHarvest').textContent =
+                    Number(data.total_harvest).toLocaleString() + ' kg';
+            }
+
+            if (data.water_used !== undefined) {
+                document.getElementById('waterUsed').textContent =
+                    Number(data.water_used).toLocaleString() + ' L';
+            }
+
+            if (data.active_crops !== undefined) {
+                document.getElementById('activeCrops').textContent =
+                    Number(data.active_crops).toLocaleString();
+            }
+
+            if (data.storage_kg !== undefined) {
+                document.getElementById('storageKg').textContent =
+                    Number(data.storage_kg).toLocaleString() + ' kg';
+            }
+
+            if (data.temperature !== undefined) {
+                document.getElementById('temperature').textContent =
+                    data.temperature + '°C';
+            }
+
+            if (data.humidity !== undefined) {
+                document.getElementById('humidity').textContent =
+                    data.humidity + '%';
+            }
+
+            if (data.wind !== undefined) {
+                document.getElementById('windSpeed').textContent =
+                    data.wind + ' km/h';
+            }
+
+            if (data.soil_moisture !== undefined) {
+                const moisture = Math.max(
+                    0,
+                    Math.min(100, Number(data.soil_moisture))
+                );
+
+                document.getElementById('soilMoisture').textContent = moisture + '%';
+                document.getElementById('moistureLabel').textContent = moisture + '%';
+                document.getElementById('moistureProgress').style.width = moisture + '%';
+
+                const circumference = 2 * Math.PI * 48;
+                const offset = circumference - (moisture / 100) * circumference;
+
+                document.getElementById('moistureCircle').style.strokeDasharray = circumference;
+                document.getElementById('moistureCircle').style.strokeDashoffset = offset;
+
+                const status = document.getElementById('moistureStatus');
+
+                if (moisture < 40) {
+                    status.textContent = 'Soil Is Dry';
+                    status.className =
+                        'inline-flex px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-semibold';
+                } else if (moisture > 70) {
+                    status.textContent = 'High Moisture';
+                    status.className =
+                        'inline-flex px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-semibold';
+                } else {
+                    status.textContent = 'Good Condition';
+                    status.className =
+                        'inline-flex px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold';
+                }
+            }
+
+        } catch (error) {
+            console.warn(
+                'Could not refresh live dashboard data:',
+                error.message
+            );
+        }
+    }
+
+    updateLiveDashboard();
+    setInterval(updateLiveDashboard, 5000);
+</script>
+
+</body>
+</html>

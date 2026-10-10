@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Settings | Smart Harvest{% endblock %}
+
+{% block extra_css %}
+<style>
+.st-page{padding:30px 5%;min-height:80vh;background:var(--bg,#f7faf7);color:var(--text,#20352a)}
+.st-page *{box-sizing:border-box}
+.st-head{margin-bottom:25px}
+.st-head h1{font-size:clamp(27px,4vw,36px);font-weight:800;margin:0 0 8px}
+.st-head p{color:var(--muted,#718078);margin:0;line-height:1.6}
+.st-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:22px;max-width:1100px;margin:auto}
+.st-menu,.st-card{background:var(--card-bg,#fff);border:1px solid var(--border,#e5ece6);border-radius:18px;padding:22px;box-shadow:0 8px 25px #163b2010;animation:stUp .5s both}
+.st-menu a{display:block;text-decoration:none;color:var(--text,#20352a);padding:12px 14px;border-radius:10px;margin-bottom:7px;font-size:14px}
+.st-menu a.active,.st-menu a:hover{background:#e7f6e9;color:#20783a}
+.st-card{margin-bottom:18px}
+.st-card h2{font-size:19px;margin:0 0 6px}
+.st-help{color:var(--muted,#718078);font-size:13px;line-height:1.6;margin:0 0 20px}
+.st-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.st-field label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
+.st-field input,.st-field select{width:100%;padding:12px;border:1px solid var(--border,#dce5dd);border-radius:10px;background:var(--input-bg,#fff);color:var(--text,#20352a);font:inherit}
+.st-field input:focus,.st-field select:focus{outline:2px solid #3aa65a55;border-color:#238344}
+.st-wide{grid-column:1/-1}
+.st-btn{border:0;border-radius:10px;padding:12px 18px;background:#238344;color:white;font-weight:700;cursor:pointer;transition:.25s}
+.st-btn:hover{background:#176b32;transform:translateY(-2px)}
+.st-pref{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:15px 0;border-bottom:1px solid var(--border,#e5ece6)}
+.st-pref:last-child{border-bottom:0}
+.st-pref strong{display:block;font-size:14px;margin-bottom:5px}
+.st-pref small{display:block;color:var(--muted,#718078);line-height:1.5}
+.st-switch{width:46px;height:26px;flex-shrink:0;position:relative}
+.st-switch input{position:absolute;opacity:0;width:1px;height:1px}
+.st-switch span{position:absolute;inset:0;border-radius:30px;background:#cbd5ce;cursor:pointer;transition:.25s}
+.st-switch span:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:white;border-radius:50%;transition:.25s}
+.st-switch input:checked+span{background:#238344}
+.st-switch input:checked+span:before{transform:translateX(20px)}
+.st-status{font-size:12px;color:#20783a;background:#e7f6e9;padding:7px 11px;border-radius:20px;display:inline-block}
+.st-message{font-size:13px;color:#20783a;margin-top:12px;display:none}
+[data-theme="dark"] .st-page{--text:#e5f2e8;--muted:#afc1b4;--card-bg:#18251c;--border:#2b3c30;--input-bg:#132017}
+[data-theme="dark"] .st-menu a.active,[data-theme="dark"] .st-menu a:hover{background:#233d2b;color:#a4e5b1}
+@keyframes stUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:760px){.st-layout{grid-template-columns:1fr}.st-menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.st-menu a{margin:0}}
+@media(max-width:520px){.st-page{padding:22px 4%}.st-form-grid{grid-template-columns:1fr}.st-wide{grid-column:auto}.st-pref{gap:12px}.st-card{padding:17px}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="st-page">
+    <header class="st-head">
+        <h1>⚙️ Settings</h1>
+        <p>Manage your profile and personalize your Smart Harvest experience.</p>
+    </header>
+
+    <div class="st-layout">
+        <aside class="st-menu">
+            <a class="active" href="#profile">👤 Profile</a>
+            <a href="#preferences">🔔 Notifications</a>
+            <a href="#appearance">🎨 Appearance</a>
+            <a href="#security">🔐 Security</a>
+            <a href="{% url 'dashboard' %}">📊 Dashboard</a>
+        </aside>
+
+        <main>
+            <section class="st-card" id="profile">
+                <h2>Profile Information</h2>
+                <p class="st-help">Review your account details. Saving changes requires a matching POST handler in views.py.</p>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="profile">
+                    <div class="st-form-grid">
+                        <div class="st-field">
+                            <label for="st-name">First Name</label>
+                            <input id="st-name" name="first_name"
+                                   value="{{ user.first_name }}"
+                                   placeholder="Your first name">
+                        </div>
+
+                        <div class="st-field">
+                            <label for="st-last">Last Name</label>
+                            <input id="st-last" name="last_name"
+                                   value="{{ user.last_name }}"
+                                   placeholder="Your last name">
+                        </div>
+
+                        <div class="st-field">
+                            <label for="st-username">Username</label>
+                            <input id="st-username" value="{{ user.username }}" readonly>
+                        </div>
+
+                        <div class="st-field">
+                            <label for="st-email">Email Address</label>
+                            <input id="st-email" type="email" name="email"
+                                   value="{{ user.email }}" required>
+                        </div>
+
+                        <div class="st-wide">
+                            <button class="st-btn" type="submit">Save Profile</button>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            <section class="st-card" id="preferences">
+                <h2>Notification Preferences</h2>
+                <p class="st-help">Choose which notifications you want to receive on this browser.</p>
+
+                <div class="st-pref">
+                    <div>
+                        <strong>🌦️ Weather alerts</strong>
+                        <small>Weather changes and potential farming risks.</small>
+                    </div>
+                    <label class="st-switch">
+                        <input type="checkbox" id="st-weather" checked>
+                        <span></span>
+                    </label>
+                </div>
+
+                <div class="st-pref">
+                    <div>
+                        <strong>💧 Irrigation reminders</strong>
+                        <small>Reminders for planned watering activities.</small>
+                    </div>
+                    <label class="st-switch">
+                        <input type="checkbox" id="st-irrigation" checked>
+                        <span></span>
+                    </label>
+                </div>
+
+                <div class="st-pref">
+                    <div>
+                        <strong>🌱 Harvest reminders</strong>
+                        <small>Reminders about upcoming harvest work.</small>
+                    </div>
+                    <label class="st-switch">
+                        <input type="checkbox" id="st-harvest" checked>
+                        <span></span>
+                    </label>
+                </div>
+                <p class="st-message" id="st-pref-message" role="status"></p>
+            </section>
+
+            <section class="st-card" id="appearance">
+                <h2>Appearance</h2>
+                <p class="st-help">Choose the theme for this browser. Your base.html theme toggle can also control the page theme.</p>
+
+                <div class="st-field">
+                    <label for="st-theme">Preferred Theme</label>
+                    <select id="st-theme">
+                        <option value="light">☀️ Light</option>
+                        <option value="dark">🌙 Dark</option>
+                    </select>
+                </div>
+                <p class="st-help" style="margin:12px 0 0">Theme preference is stored in this browser only.</p>
+            </section>
+
+            <section class="st-card" id="security">
+                <h2>Security</h2>
+                <p class="st-help">Keep your account secure. Use the password reset page if you need to change a forgotten password.</p>
+                <span class="st-status">Account: {{ user.username }}</span>
+                <div style="margin-top:18px">
+                    <a class="st-btn" style="display:inline-block;text-decoration:none"
+                       href="{% url 'password_reset' %}">Reset Password</a>
+                    <a href="{% url 'dashboard' %}" style="margin-left:10px;color:var(--text,#20352a)">Back to Dashboard</a>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const themeSelect = document.getElementById("st-theme");
+    const root = document.documentElement;
+
+    function applyTheme(theme) {
+        root.setAttribute("data-theme", theme);
+        try {
+            localStorage.setItem("smartHarvestTheme", theme);
+        } catch (error) {}
+    }
+
+    let savedTheme = "light";
+    try {
+        savedTheme = localStorage.getItem("smartHarvestTheme") || "light";
+    } catch (error) {}
+
+    const currentTheme = root.getAttribute("data-theme") || savedTheme;
+    themeSelect.value = currentTheme;
+
+    themeSelect.addEventListener("change", function () {
+        applyTheme(themeSelect.value);
+    });
+
+    const prefIds = ["st-weather", "st-irrigation", "st-harvest"];
+    const message = document.getElementById("st-pref-message");
+
+    prefIds.forEach(function (id) {
+        const checkbox = document.getElementById(id);
+        const key = "smartHarvest_" + id;
+
+        try {
+            const saved = localStorage.getItem(key);
+            if (saved !== null) checkbox.checked = saved === "true";
+        } catch (error) {}
+
+        checkbox.addEventListener("change", function () {
+            try {
+                localStorage.setItem(key, String(checkbox.checked));
+            } catch (error) {}
+
+            message.textContent = "Preference updated in this browser.";
+            message.style.display = "block";
+        });
+    });
+});
+</script>
+{% endblock %}

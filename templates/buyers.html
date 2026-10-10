@@ -1,0 +1,640 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Buyers | Smart Harvest{% endblock %}
+
+{% block extra_css %}
+<style>
+.by-page {
+    padding: 30px 5%;
+    min-height: 80vh;
+    background: var(--bg, #f7faf7);
+    color: var(--text, #20352a);
+}
+
+.by-page * {
+    box-sizing: border-box;
+}
+
+.by-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.by-head h1 {
+    font-size: clamp(27px, 4vw, 36px);
+    font-weight: 800;
+    margin: 0 0 8px;
+}
+
+.by-head p {
+    color: var(--muted, #718078);
+    margin: 0;
+    line-height: 1.6;
+}
+
+.by-btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    background: #238344;
+    color: #fff;
+    text-decoration: none;
+    border: 0;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .25s;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.by-btn:hover {
+    background: #176b32;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.by-btn.alt {
+    background: #e5f5e8;
+    color: #176b32;
+}
+
+.by-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+.by-card {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border, #e5ece6);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 8px 25px #163b2010;
+    animation: byUp .5s both;
+    transition: .25s;
+    min-width: 0;
+}
+
+.by-card:hover {
+    box-shadow: 0 14px 30px #163b2017;
+}
+
+.by-stats .by-card:nth-child(2) {
+    animation-delay: .1s;
+}
+
+.by-stats .by-card:nth-child(3) {
+    animation-delay: .2s;
+}
+
+.by-label {
+    font-size: 13px;
+    color: var(--muted, #718078);
+}
+
+.by-number {
+    font-size: 31px;
+    font-weight: 800;
+    margin: 10px 0 5px;
+}
+
+.by-main {
+    display: grid;
+    grid-template-columns: .8fr 1.2fr;
+    gap: 22px;
+    align-items: start;
+}
+
+.by-card h2 {
+    font-size: 19px;
+    margin: 0 0 8px;
+}
+
+.by-help {
+    font-size: 13px;
+    color: var(--muted, #718078);
+    line-height: 1.65;
+    margin: 0 0 20px;
+}
+
+.by-form {
+    display: grid;
+    gap: 14px;
+}
+
+.by-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 7px;
+}
+
+.by-field input,
+.by-field select,
+.by-field textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border, #dce5dd);
+    border-radius: 10px;
+    background: var(--input-bg, #fff);
+    color: var(--text, #20352a);
+    font: inherit;
+    font-size: 14px;
+}
+
+.by-field input:focus,
+.by-field select:focus,
+.by-field textarea:focus {
+    outline: 2px solid #23834455;
+    border-color: #238344;
+}
+
+.by-search {
+    width: 100%;
+    padding: 13px 15px;
+    border: 1px solid var(--border, #dce5dd);
+    border-radius: 12px;
+    background: var(--input-bg, #fff);
+    color: var(--text, #20352a);
+    font: inherit;
+    margin-bottom: 17px;
+}
+
+.by-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.by-person {
+    padding: 20px;
+    border: 1px solid var(--border, #e5ece6);
+    border-radius: 16px;
+    background: var(--card-bg, #fff);
+    transition: .25s;
+    animation: byUp .5s both;
+    min-width: 0;
+}
+
+.by-person:hover {
+    border-color: #7ac78b;
+    transform: translateY(-3px);
+}
+
+.by-avatar {
+    width: 49px;
+    height: 49px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #d3f1dc, #eaf8ec);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+    margin-bottom: 13px;
+}
+
+.by-person h3 {
+    font-size: 17px;
+    margin: 0 0 7px;
+    overflow-wrap: anywhere;
+}
+
+.by-detail {
+    font-size: 13px;
+    color: var(--muted, #718078);
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.by-tag {
+    display: inline-block;
+    background: #e5f5e8;
+    color: #176b32;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 10px;
+}
+
+.by-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 30px;
+    color: var(--muted, #718078);
+    line-height: 1.7;
+}
+
+.by-alert {
+    padding: 12px 15px;
+    margin-bottom: 18px;
+    border-radius: 10px;
+    background: #dcfce7;
+    color: #166534;
+    line-height: 1.6;
+}
+
+.by-alert.error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.by-alert.warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.by-alert.info {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+[data-theme="dark"] .by-page {
+    --text: #e5f2e8;
+    --muted: #afc1b4;
+    --card-bg: #18251c;
+    --border: #2b3c30;
+    --input-bg: #132017;
+}
+
+[data-theme="dark"] .by-tag {
+    background: #233d2b;
+    color: #a4e5b1;
+}
+
+[data-theme="dark"] .by-btn.alt {
+    background: #233d2b;
+    color: #a4e5b1;
+}
+
+@keyframes byUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 900px) {
+    .by-main {
+        grid-template-columns: 1fr;
+    }
+
+    .by-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .by-page {
+        padding: 22px 4%;
+    }
+
+    .by-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .by-list {
+        grid-template-columns: 1fr;
+    }
+
+    .by-card {
+        padding: 17px;
+    }
+
+    .by-head .by-btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="by-page">
+
+    <!-- PAGE HEADER -->
+    <header class="by-head">
+        <div>
+            <h1>🛒 Buyer Network</h1>
+            <p>
+                Manage buyer contacts and build stronger connections
+                with agricultural markets.
+            </p>
+        </div>
+
+        <a href="#add-buyer" class="by-btn">
+            ＋ Add Buyer
+        </a>
+    </header>
+
+
+    <!-- DJANGO MESSAGES -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="by-alert
+                {% if message.tags == 'error' %}error
+                {% elif message.tags == 'warning' %}warning
+                {% elif message.tags == 'info' %}info
+                {% endif %}"
+                role="status">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+
+    <!-- STATISTICS -->
+    <div class="by-stats">
+
+        <article class="by-card">
+            <div class="by-label">Registered Buyers</div>
+            <div class="by-number">{{ buyers|length }}</div>
+            <div class="by-label">Buyers in the directory</div>
+        </article>
+
+        <article class="by-card">
+            <div class="by-label">Market Connections</div>
+            <div class="by-number">🤝</div>
+            <div class="by-label">Connect farms with markets</div>
+        </article>
+
+        <article class="by-card">
+            <div class="by-label">Produce Categories</div>
+            <div class="by-number">🌾</div>
+            <div class="by-label">Rice, vegetables, fruits and more</div>
+        </article>
+
+    </div>
+
+
+    <!-- MAIN CONTENT -->
+    <div class="by-main">
+
+        <!-- REGISTER BUYER FORM -->
+        <section class="by-card" id="add-buyer">
+
+            <h2>＋ Register Buyer</h2>
+
+            <p class="by-help">
+                Enter buyer contact information to add a new
+                contact to your agricultural market network.
+            </p>
+
+            <form
+                method="POST"
+                action="{% url 'buyers' %}"
+                class="by-form"
+            >
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="form_type"
+                    value="buyer"
+                >
+
+                <div class="by-field">
+                    <label for="by-name">Buyer / Business Name *</label>
+                    <input
+                        id="by-name"
+                        name="name"
+                        type="text"
+                        placeholder="Business or buyer name"
+                        maxlength="150"
+                        autocomplete="organization"
+                        required
+                    >
+                </div>
+
+                <div class="by-field">
+                    <label for="by-email">Email Address</label>
+                    <input
+                        id="by-email"
+                        name="email"
+                        type="email"
+                        placeholder="buyer@example.com"
+                        maxlength="254"
+                        autocomplete="email"
+                    >
+                </div>
+
+                <div class="by-field">
+                    <label for="by-phone">Phone Number *</label>
+                    <input
+                        id="by-phone"
+                        name="phone"
+                        type="tel"
+                        placeholder="+880..."
+                        maxlength="20"
+                        autocomplete="tel"
+                        required
+                    >
+                </div>
+
+                <div class="by-field">
+                    <label for="by-location">Market / Location</label>
+                    <input
+                        id="by-location"
+                        name="location"
+                        type="text"
+                        placeholder="City, district or market"
+                        maxlength="200"
+                    >
+                </div>
+
+                <div class="by-field">
+                    <label for="by-product">Interested Produce</label>
+                    <select id="by-product" name="interested_product">
+                        <option value="">Select a category</option>
+                        <option value="rice">Rice and grains</option>
+                        <option value="vegetables">Vegetables</option>
+                        <option value="fruits">Fruits</option>
+                        <option value="potatoes">Potatoes</option>
+                        <option value="other">Other produce</option>
+                    </select>
+                </div>
+
+                <div class="by-field">
+                    <label for="by-notes">Additional Notes</label>
+                    <textarea
+                        id="by-notes"
+                        name="notes"
+                        rows="3"
+                        maxlength="3000"
+                        placeholder="Purchase needs or other details"
+                    ></textarea>
+                </div>
+
+                <button type="submit" class="by-btn">
+                    Register Buyer
+                </button>
+
+            </form>
+        </section>
+
+
+        <!-- BUYER DIRECTORY -->
+        <section class="by-card">
+
+            <h2>🌿 Buyer Directory</h2>
+
+            <p class="by-help">
+                Search registered buyers by name, location,
+                contact details or interested produce.
+            </p>
+
+            <input
+                id="buyerSearch"
+                class="by-search"
+                type="search"
+                placeholder="Search name, location, product..."
+                aria-label="Search buyers"
+            >
+
+            <div class="by-list" id="buyerList">
+
+                {% for buyer in buyers %}
+
+                    <article class="by-person buyer-item">
+
+                        <div class="by-avatar">🛒</div>
+
+                        <h3>
+                            {{ buyer.name }}
+                        </h3>
+
+                        <div class="by-detail">
+
+                            {% if buyer.location %}
+                                📍 {{ buyer.location }}<br>
+                            {% endif %}
+
+                            {% if buyer.phone %}
+                                📞 {{ buyer.phone }}<br>
+                            {% endif %}
+
+                            {% if buyer.email %}
+                                ✉️ {{ buyer.email }}<br>
+                            {% endif %}
+
+                            {% if buyer.get_interested_product_display %}
+                                🌾 {{ buyer.get_interested_product_display }}
+                            {% elif buyer.interested_product %}
+                                🌾 {{ buyer.interested_product }}
+                            {% endif %}
+
+                            {% if buyer.notes %}
+                                <br>📝 {{ buyer.notes }}
+                            {% endif %}
+
+                        </div>
+
+                        <span class="by-tag">
+                            Market Contact
+                        </span>
+
+                    </article>
+
+                {% empty %}
+
+                    <div class="by-empty">
+                        <div style="font-size:40px">🛒</div>
+
+                        <strong>No buyer records found</strong>
+
+                        <p>
+                            Registered buyers will appear here after
+                            their details are saved in the database.
+                        </p>
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+            <p id="buyerNoResults" class="by-help" hidden>
+                No matching buyers found.
+            </p>
+
+        </section>
+
+    </div>
+
+
+    <!-- FOOTER ACTIONS -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;">
+
+        <a href="{% url 'farmers' %}" class="by-btn alt">
+            👨‍🌾 View Farmers
+        </a>
+
+        <a href="{% url 'storage' %}" class="by-btn alt">
+            📦 Storage
+        </a>
+
+        <a href="{% url 'dashboard' %}" class="by-btn alt">
+            ← Dashboard
+        </a>
+
+    </div>
+
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const search = document.getElementById("buyerSearch");
+    const items = document.querySelectorAll(".buyer-item");
+    const noResults = document.getElementById("buyerNoResults");
+
+    if (!search) {
+        return;
+    }
+
+    search.addEventListener("input", function () {
+
+        const query = search.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        items.forEach(function (item) {
+
+            const matches = item.textContent
+                .toLowerCase()
+                .includes(query);
+
+            item.hidden = !matches;
+
+            if (matches) {
+                visibleCount++;
+            }
+
+        });
+
+        if (noResults) {
+            noResults.hidden =
+                visibleCount !== 0 || items.length === 0;
+        }
+
+    });
+
+});
+</script>
+{% endblock %}

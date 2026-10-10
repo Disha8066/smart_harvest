@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Smart Irrigation | Smart Harvest{% endblock %}
+
+{% block extra_css %}
+<style>
+.ir-page{--green:#238344;--light:#eef8ef;--ink:#20352a;--muted:#718078;color:var(--ink);padding:28px 5%;background:var(--bg,#f7faf7);min-height:80vh}
+.ir-page *{box-sizing:border-box}
+.ir-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:25px}
+.ir-head h1{font-size:clamp(26px,4vw,36px);margin:0 0 7px;font-weight:800}
+.ir-head p{color:var(--muted);margin:0;line-height:1.6}
+.ir-pill{background:#dff5e4;color:#176b32;padding:9px 15px;border-radius:30px;font-size:13px;font-weight:700}
+.ir-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-bottom:25px}
+.ir-card{background:var(--card-bg,#fff);border:1px solid var(--border,#e6eee7);border-radius:18px;padding:23px;box-shadow:0 8px 25px #163b2010;transition:.3s;animation:irRise .6s both}
+.ir-card:hover{transform:translateY(-5px);box-shadow:0 15px 35px #163b2018}
+.ir-card:nth-child(2){animation-delay:.1s}.ir-card:nth-child(3){animation-delay:.2s}
+.ir-label{font-size:13px;color:var(--muted);font-weight:600}
+.ir-value{font-size:32px;font-weight:800;margin:12px 0 5px}
+.ir-sub{font-size:12px;color:var(--muted)}
+.ir-icon{float:right;font-size:26px;background:var(--light);padding:10px;border-radius:12px}
+.ir-section{display:grid;grid-template-columns:1.15fr .85fr;gap:20px}
+.ir-card h2{font-size:19px;margin:0 0 18px}
+.ir-progress{height:10px;background:#e8eee9;border-radius:20px;overflow:hidden;margin:12px 0 8px}
+.ir-progress span{display:block;height:100%;width:64%;background:linear-gradient(90deg,#35a85a,#8ad56b);border-radius:20px;animation:irGrow 1.2s ease}
+.ir-row{display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-top:17px}
+.ir-form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ir-form label{font-size:13px;font-weight:700;display:block;margin-bottom:7px}
+.ir-form input,.ir-form select,.ir-form textarea{width:100%;padding:12px;border:1px solid #dbe5dc;border-radius:10px;background:var(--input-bg,#fff);color:var(--text,#20352a);font:inherit;outline:none}
+.ir-form input:focus,.ir-form select:focus{border-color:#35a85a;box-shadow:0 0 0 3px #35a85a20}
+.ir-full{grid-column:1/-1}
+.ir-btn{border:0;background:#238344;color:white;padding:12px 18px;border-radius:10px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;justify-content:center;align-items:center;transition:.25s}
+.ir-btn:hover{background:#176b32;transform:translateY(-2px);color:white}
+.ir-btn-secondary{background:var(--light);color:#176b32}
+.ir-schedule{width:100%;border-collapse:collapse;font-size:13px}
+.ir-schedule th,.ir-schedule td{text-align:left;padding:13px 8px;border-bottom:1px solid var(--border,#e6eee7)}
+.ir-schedule th{color:var(--muted);font-weight:600}
+.ir-tag{display:inline-block;background:#e0f5e6;color:#176b32;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.ir-empty{color:var(--muted);font-size:13px;line-height:1.7}
+[data-theme="dark"] .ir-page{--ink:#e5f2e8;--muted:#afc1b4;--card-bg:#18251c;--border:#2b3c30;--light:#233d2b;--input-bg:#132017}
+[data-theme="dark"] .ir-form input,[data-theme="dark"] .ir-form select{border-color:#344a39}
+@keyframes irRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes irGrow{from{width:0}to{width:64%}}
+@media(max-width:900px){.ir-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ir-section{grid-template-columns:1fr}}
+@media(max-width:600px){.ir-page{padding:22px 4%}.ir-grid{grid-template-columns:1fr}.ir-form{grid-template-columns:1fr}.ir-full{grid-column:auto}.ir-schedule{min-width:470px}.ir-table-wrap{overflow-x:auto}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ir-page">
+    <header class="ir-head">
+        <div>
+            <h1>💧 Smart Irrigation</h1>
+            <p>Plan watering, monitor moisture and manage your irrigation activities.</p>
+        </div>
+        <span class="ir-pill">🌱 Irrigation Control Center</span>
+    </header>
+
+    <div class="ir-grid">
+        <article class="ir-card">
+            <span class="ir-icon">🌿</span>
+            <div class="ir-label">Soil Moisture</div>
+            <div class="ir-value" id="soilValue">64%</div>
+            <div class="ir-sub">Sample display value — connect a sensor for live data.</div>
+            <div class="ir-progress"><span id="soilBar"></span></div>
+        </article>
+
+        <article class="ir-card">
+            <span class="ir-icon">🚿</span>
+            <div class="ir-label">Water Usage</div>
+            <div class="ir-value">-- <small style="font-size:14px">L</small></div>
+            <div class="ir-sub">Connect a flow sensor to display actual usage.</div>
+        </article>
+
+        <article class="ir-card">
+            <span class="ir-icon">⏰</span>
+            <div class="ir-label">Next Irrigation</div>
+            <div class="ir-value" style="font-size:25px">Set schedule</div>
+            <div class="ir-sub">Your upcoming watering time will appear here.</div>
+        </article>
+    </div>
+
+    <div class="ir-section">
+        <section class="ir-card">
+            <h2>➕ Create Irrigation Schedule</h2>
+            <p class="ir-empty">Enter your watering plan. Saving it to the database requires a POST handler in views.py.</p>
+
+            <form method="POST" class="ir-form">
+                {% csrf_token %}
+                <div>
+                    <label for="ir-crop">Crop / Field</label>
+                    <input id="ir-crop" name="crop_name" placeholder="e.g. Tomato field" required>
+                </div>
+                <div>
+                    <label for="ir-method">Irrigation Method</label>
+                    <select id="ir-method" name="irrigation_method" required>
+                        <option value="">Select method</option>
+                        <option value="drip">Drip irrigation</option>
+                        <option value="sprinkler">Sprinkler</option>
+                        <option value="surface">Surface irrigation</option>
+                        <option value="manual">Manual watering</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="ir-date">Date</label>
+                    <input id="ir-date" type="date" name="schedule_date" required>
+                </div>
+                <div>
+                    <label for="ir-time">Start Time</label>
+                    <input id="ir-time" type="time" name="schedule_time" required>
+                </div>
+                <div>
+                    <label for="ir-duration">Duration (minutes)</label>
+                    <input id="ir-duration" type="number" name="duration" min="1" placeholder="20" required>
+                </div>
+                <div>
+                    <label for="ir-water">Estimated Water (litres)</label>
+                    <input id="ir-water" type="number" name="water_amount" min="0" step="0.1" placeholder="100">
+                </div>
+                <div class="ir-full">
+                    <button class="ir-btn" type="submit">Save Irrigation Plan</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="ir-card">
+            <h2>🌤️ Irrigation Tips</h2>
+            <div class="ir-row"><strong>Water early</strong><span>Morning</span></div>
+            <div class="ir-progress"><span style="width:85%"></span></div>
+            <p class="ir-empty">Morning watering can reduce evaporation in many conditions.</p>
+
+            <div class="ir-row"><strong>Check soil first</strong><span>Before watering</span></div>
+            <div class="ir-progress"><span style="width:70%"></span></div>
+            <p class="ir-empty">Use real soil-moisture readings and crop-specific thresholds before deciding to irrigate.</p>
+
+            <div class="ir-row"><strong>Useful pages</strong></div>
+            <div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:12px">
+                <a class="ir-btn ir-btn-secondary" href="{% url 'weather' %}">Weather</a>
+                <a class="ir-btn ir-btn-secondary" href="{% url 'water_management' %}">Water Management</a>
+                <a class="ir-btn ir-btn-secondary" href="{% url 'dashboard' %}">Dashboard</a>
+            </div>
+        </section>
+    </div>
+
+    <section class="ir-card" style="margin-top:20px">
+        <h2>📅 Upcoming Schedule</h2>
+        {% if irrigation_schedules %}
+        <div class="ir-table-wrap">
+            <table class="ir-schedule">
+                <thead>
+                    <tr><th>Crop / Field</th><th>Date</th><th>Time</th><th>Duration</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    {% for item in irrigation_schedules %}
+                    <tr>
+                        <td>{{ item.crop_name }}</td>
+                        <td>{{ item.schedule_date }}</td>
+                        <td>{{ item.schedule_time }}</td>
+                        <td>{{ item.duration }} min</td>
+                        <td><span class="ir-tag">{{ item.status|default:"Scheduled" }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="ir-empty">No saved schedules are available yet. Once your view passes irrigation_schedules, records will appear here.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const dateInput = document.getElementById("ir-date");
+    if (dateInput && !dateInput.value) {
+        const today = new Date();
+        const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+            .toISOString().slice(0, 10);
+        dateInput.value = localDate;
+    }
+});
+</script>
+{% endblock %}

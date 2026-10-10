@@ -1,0 +1,604 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Register | Smart Harvest</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .animated-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -3;
+            background-image: url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=2000&q=85");
+            background-size: cover;
+            background-position: center;
+            animation: backgroundZoom 25s ease-in-out infinite alternate;
+        }
+
+        @keyframes backgroundZoom {
+            from { transform: scale(1); }
+            to { transform: scale(1.12); }
+        }
+
+        .background-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: linear-gradient(
+                120deg,
+                rgba(1, 35, 18, 0.88),
+                rgba(5, 70, 35, 0.62),
+                rgba(1, 30, 15, 0.78)
+            );
+        }
+
+        .glow {
+            position: fixed;
+            width: 360px;
+            height: 360px;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle,
+                rgba(133, 255, 170, 0.20),
+                transparent 70%
+            );
+            filter: blur(15px);
+            pointer-events: none;
+            z-index: -1;
+            animation: glowMove 9s ease-in-out infinite alternate;
+        }
+
+        .glow-one {
+            top: -100px;
+            left: -100px;
+        }
+
+        .glow-two {
+            bottom: -120px;
+            right: -70px;
+            animation-delay: 2s;
+        }
+
+        @keyframes glowMove {
+            from { transform: translate(0, 0); }
+            to { transform: translate(70px, 40px); }
+        }
+
+        .particle {
+            position: fixed;
+            bottom: -20px;
+            width: 6px;
+            height: 6px;
+            background: rgba(220, 255, 220, 0.8);
+            border-radius: 50%;
+            box-shadow: 0 0 12px rgba(200, 255, 200, 0.7);
+            pointer-events: none;
+            z-index: -1;
+            animation: floatUp linear infinite;
+        }
+
+        .p1 { left: 10%; animation-duration: 13s; }
+        .p2 { left: 24%; animation-duration: 17s; animation-delay: 2s; }
+        .p3 { left: 43%; animation-duration: 14s; animation-delay: 4s; }
+        .p4 { left: 68%; animation-duration: 16s; animation-delay: 1s; }
+        .p5 { left: 87%; animation-duration: 12s; animation-delay: 3s; }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            15%, 80% { opacity: 1; }
+            100% {
+                transform: translateY(-110vh) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        .register-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 35px 24px;
+        }
+
+        .page-layout {
+            width: 100%;
+            max-width: 1100px;
+            display: grid;
+            grid-template-columns: 1fr 440px;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .left-content {
+            color: white;
+            animation: slideLeft 0.9s ease both;
+        }
+
+        .brand-name {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+        }
+
+        .brand-name span {
+            color: #a7f3b7;
+        }
+
+        .left-content h1 {
+            font-size: clamp(38px, 4.5vw, 60px);
+            font-weight: 700;
+            line-height: 1.2;
+            margin: 0 0 22px;
+        }
+
+        .left-content h1 span {
+            color: #a7f3b7;
+        }
+
+        .left-content > p {
+            color: #e1f5e6;
+            line-height: 1.9;
+            max-width: 490px;
+            font-size: 15px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 24px;
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            font-size: 22px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.13);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .feature h3 {
+            margin: 0 0 4px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .feature p {
+            margin: 0;
+            font-size: 12px;
+            color: #d5f0dc;
+        }
+
+        .register-card {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            border-radius: 25px;
+            padding: 34px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+            animation: slideRight 0.9s ease both;
+        }
+
+        .card-heading {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .card-heading h2 {
+            margin: 0;
+            color: #163524;
+            font-size: 29px;
+            font-weight: 700;
+        }
+
+        .card-heading p {
+            color: #78847c;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #34483a;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        .form-group input {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            padding: 12px 14px;
+            background: #f7faf7;
+            border: 1px solid #dce6dd;
+            border-radius: 11px;
+            outline: none;
+            font-size: 13px;
+            transition: 0.25s ease;
+        }
+
+        .form-group input:focus {
+            background: white;
+            border-color: #168344;
+            box-shadow: 0 0 0 3px rgba(22, 131, 68, 0.10);
+        }
+
+        .terms {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            margin: 18px 0;
+            color: #6b756d;
+            font-size: 11px;
+            line-height: 1.8;
+        }
+
+        .terms input {
+            margin-top: 4px;
+            accent-color: #168344;
+            flex-shrink: 0;
+        }
+
+        .terms label {
+            cursor: pointer;
+        }
+
+        .terms a,
+        .login-link a {
+            color: #147a3c;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .terms a:hover,
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .register-btn {
+            width: 100%;
+            border: none;
+            padding: 14px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #168344, #07552b);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.25s ease;
+        }
+
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 9px 22px rgba(12, 104, 48, 0.25);
+        }
+
+        .login-link {
+            margin-top: 22px;
+            text-align: center;
+            color: #78847c;
+            font-size: 12px;
+        }
+
+        .home-link {
+            text-align: center;
+            margin-top: 17px;
+        }
+
+        .home-link a {
+            color: #718078;
+            font-size: 11px;
+            text-decoration: none;
+        }
+
+        .home-link a:hover {
+            color: #147a3c;
+        }
+
+        .error-message {
+            padding: 10px 12px;
+            margin-bottom: 15px;
+            border-radius: 9px;
+            background: #fff0f0;
+            color: #b42318;
+            font-size: 12px;
+        }
+
+        .success-message {
+            padding: 10px 12px;
+            margin-bottom: 15px;
+            border-radius: 9px;
+            background: #eaf8ed;
+            color: #166534;
+            font-size: 12px;
+        }
+
+        @keyframes slideLeft {
+            from { opacity: 0; transform: translateX(-35px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideRight {
+            from { opacity: 0; transform: translateX(35px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 900px) {
+            .page-layout {
+                grid-template-columns: 1fr;
+                max-width: 460px;
+                gap: 25px;
+            }
+
+            .left-content {
+                display: none;
+            }
+
+            .register-page {
+                padding: 25px 16px;
+            }
+
+            .register-card {
+                padding: 28px 23px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .register-card {
+                padding: 23px 17px;
+            }
+
+            .card-heading h2 {
+                font-size: 25px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="animated-bg"></div>
+    <div class="background-overlay"></div>
+    <div class="glow glow-one"></div>
+    <div class="glow glow-two"></div>
+
+    <div class="particle p1"></div>
+    <div class="particle p2"></div>
+    <div class="particle p3"></div>
+    <div class="particle p4"></div>
+    <div class="particle p5"></div>
+
+    <main class="register-page">
+        <div class="page-layout">
+
+            <section class="left-content">
+                <div class="brand-name">SMART <span>HARVEST</span></div>
+
+                <h1>
+                    Grow Smarter.<br>
+                    <span>Harvest Better.</span>
+                </h1>
+
+                <p>
+                    Join Smart Harvest and bring your farming journey
+                    into the digital age. Manage crops, irrigation and
+                    harvest from one smart platform.
+                </p>
+
+                <div class="feature">
+                    <div class="feature-icon">🌱</div>
+                    <div>
+                        <h3>Smart Crop Management</h3>
+                        <p>Manage your crops efficiently.</p>
+                    </div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">💧</div>
+                    <div>
+                        <h3>Smart Irrigation</h3>
+                        <p>Save water and improve production.</p>
+                    </div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <div>
+                        <h3>Harvest Analytics</h3>
+                        <p>Understand your farm performance.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="register-card">
+
+                <div class="card-heading">
+                    <h2>Create Account</h2>
+                    <p>Start your smart farming journey</p>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="{% if 'error' in message.tags %}error-message{% else %}success-message{% endif %}" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="POST" action="{% url 'register' %}" id="registerForm">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="full_name">Full Name</label>
+                        <input
+                            type="text"
+                            id="full_name"
+                            name="full_name"
+                            placeholder="Enter your full name"
+                            autocomplete="name"
+                            value="{{ request.POST.full_name|default:'' }}"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            placeholder="Choose a username"
+                            autocomplete="username"
+                            value="{{ request.POST.username|default:'' }}"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Enter your email"
+                            autocomplete="email"
+                            value="{{ request.POST.email|default:'' }}"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Create a password"
+                            minlength="8"
+                            autocomplete="new-password"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password</label>
+                        <input
+                            type="password"
+                            id="confirm_password"
+                            name="confirm_password"
+                            placeholder="Confirm your password"
+                            minlength="8"
+                            autocomplete="new-password"
+                            required>
+                    </div>
+
+                    <div class="terms">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <label for="terms">
+                            I agree to the
+                            <a href="#">Terms &amp; Conditions</a>
+                            and <a href="#">Privacy Policy</a>.
+                        </label>
+                    </div>
+
+                    <button type="submit" class="register-btn" id="registerButton">
+                        Create Account
+                    </button>
+                </form>
+
+                <div class="login-link">
+                    Already have an account?
+                    <a href="{% url 'login' %}">Login</a>
+                </div>
+
+                <div class="home-link">
+                    <a href="{% url 'index' %}">← Back to Home</a>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const form = document.getElementById("registerForm");
+        const password = document.getElementById("password");
+        const confirmPassword = document.getElementById("confirm_password");
+        const registerButton = document.getElementById("registerButton");
+
+        function validatePasswords() {
+            if (
+                confirmPassword.value !== "" &&
+                password.value !== confirmPassword.value
+            ) {
+                confirmPassword.setCustomValidity("Passwords do not match.");
+            } else {
+                confirmPassword.setCustomValidity("");
+            }
+        }
+
+        password.addEventListener("input", validatePasswords);
+        confirmPassword.addEventListener("input", validatePasswords);
+
+        form.addEventListener("submit", function(event) {
+            validatePasswords();
+
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                form.reportValidity();
+                return;
+            }
+
+            if (password.value !== confirmPassword.value) {
+                event.preventDefault();
+                confirmPassword.reportValidity();
+                confirmPassword.focus();
+                return;
+            }
+
+            // Let Django process the POST request.
+            registerButton.disabled = true;
+            registerButton.textContent = "Creating Account...";
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,2713 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Green Harvest | Harvest Management</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+
+        /* =========================================================
+           ROOT
+        ========================================================= */
+
+        :root {
+            --bg: #eef8f0;
+            --bg-secondary: #e2f1e5;
+            --card: rgba(255,255,255,.82);
+            --card-solid: #ffffff;
+            --text: #173524;
+            --muted: #668070;
+            --border: rgba(34,88,53,.14);
+
+            --green: #18a957;
+            --green-light: #48db7e;
+            --green-dark: #075c32;
+            --green-soft: rgba(24,169,87,.11);
+
+            --warning: #e4a52e;
+            --danger: #e45252;
+
+            --shadow:
+                0 20px 60px rgba(22,76,42,.10);
+        }
+
+        body.dark {
+            --bg: #03150c;
+            --bg-secondary: #061f12;
+            --card: rgba(8,37,22,.86);
+            --card-solid: #092519;
+            --text: #e7f8eb;
+            --muted: #91ad99;
+            --border: rgba(130,190,145,.15);
+
+            --green: #35d978;
+            --green-light: #5bec91;
+            --green-dark: #0d6d3c;
+            --green-soft: rgba(53,217,120,.10);
+
+            --shadow:
+                0 25px 80px rgba(0,0,0,.38);
+        }
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            font-family:
+                "Segoe UI",
+                system-ui,
+                -apple-system,
+                sans-serif;
+
+            color: var(--text);
+
+            background:
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(45,190,94,.12),
+                    transparent 28%
+                ),
+                radial-gradient(
+                    circle at 90% 85%,
+                    rgba(46,164,85,.09),
+                    transparent 30%
+                ),
+                var(--bg);
+
+            transition:
+                background .45s ease,
+                color .45s ease;
+
+            overflow-x: hidden;
+        }
+
+
+        /* =========================================================
+           ANIMATED BACKGROUND
+        ========================================================= */
+
+        .background-glow {
+            position: fixed;
+
+            width: 500px;
+            height: 500px;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(49,210,111,.12),
+                    transparent 68%
+                );
+
+            filter: blur(30px);
+
+            pointer-events: none;
+
+            z-index: -2;
+
+            animation:
+                glowFloat 12s ease-in-out infinite;
+        }
+
+        .background-glow.one {
+            top: -220px;
+            left: -180px;
+        }
+
+        .background-glow.two {
+            right: -220px;
+            bottom: -200px;
+
+            animation-delay: -6s;
+        }
+
+        @keyframes glowFloat {
+
+            0%,100% {
+                transform:
+                    translate(0,0)
+                    scale(1);
+            }
+
+            50% {
+                transform:
+                    translate(50px,30px)
+                    scale(1.12);
+            }
+        }
+
+
+        /* =========================================================
+           FLOATING LEAVES
+        ========================================================= */
+
+        .floating-leaf {
+            position: fixed;
+
+            z-index: -1;
+
+            opacity: .16;
+
+            font-size: 24px;
+
+            pointer-events: none;
+
+            animation:
+                floatLeaf 10s ease-in-out infinite;
+        }
+
+        .leaf-1 {
+            left: 7%;
+            top: 25%;
+        }
+
+        .leaf-2 {
+            right: 8%;
+            top: 30%;
+
+            animation-delay: -3s;
+        }
+
+        .leaf-3 {
+            left: 25%;
+            bottom: 12%;
+
+            animation-delay: -5s;
+        }
+
+        .leaf-4 {
+            right: 27%;
+            bottom: 20%;
+
+            animation-delay: -7s;
+        }
+
+        @keyframes floatLeaf {
+
+            0%,100% {
+                transform:
+                    translateY(0)
+                    rotate(0deg);
+            }
+
+            50% {
+                transform:
+                    translateY(-35px)
+                    rotate(18deg);
+            }
+        }
+
+
+        /* =========================================================
+           SIDEBAR
+        ========================================================= */
+
+        .sidebar {
+            position: fixed;
+
+            top: 0;
+            left: 0;
+
+            width: 275px;
+            height: 100vh;
+
+            z-index: 100;
+
+            padding: 25px 18px;
+
+            display: flex;
+            flex-direction: column;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #062719,
+                    #03170d
+                );
+
+            border-right:
+                1px solid rgba(110,190,130,.15);
+
+            box-shadow:
+                20px 0 70px rgba(0,0,0,.12);
+
+            transform:
+                translateX(-100%);
+
+            transition:
+                transform .5s cubic-bezier(.77,0,.18,1);
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            padding:
+                8px 10px 25px;
+        }
+
+        .sidebar-logo img {
+            width: 48px;
+            height: 48px;
+
+            object-fit: contain;
+
+            padding: 5px;
+
+            border-radius: 15px;
+
+            background:
+                rgba(67,220,119,.13);
+
+            border:
+                1px solid rgba(83,221,124,.22);
+        }
+
+        .sidebar-logo strong {
+            color: white;
+
+            font-size: 21px;
+
+            letter-spacing: -.5px;
+        }
+
+        .sidebar-logo span {
+            display: block;
+
+            margin-top: 2px;
+
+            color:
+                rgba(205,235,211,.48);
+
+            font-size: 10px;
+
+            letter-spacing: 1.5px;
+        }
+
+
+        .nav-title {
+            margin:
+                20px 12px 9px;
+
+            color:
+                rgba(195,225,202,.38);
+
+            font-size: 10px;
+
+            font-weight: 900;
+
+            letter-spacing: 1.5px;
+
+            text-transform: uppercase;
+        }
+
+
+        .nav-link {
+            display: flex;
+
+            align-items: center;
+
+            gap: 13px;
+
+            padding:
+                13px 14px;
+
+            margin-bottom: 5px;
+
+            border-radius: 14px;
+
+            color:
+                rgba(224,242,228,.62);
+
+            text-decoration: none;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            transition:
+                background .25s,
+                color .25s,
+                transform .25s;
+        }
+
+        .nav-link:hover {
+            color: white;
+
+            background:
+                rgba(74,218,125,.08);
+
+            transform:
+                translateX(4px);
+        }
+
+        .nav-link.active {
+            color: #04170c;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #4be384,
+                    #27c96d
+                );
+
+            box-shadow:
+                0 10px 30px rgba(42,210,109,.16);
+        }
+
+        .nav-icon {
+            width: 27px;
+
+            text-align: center;
+
+            font-size: 19px;
+        }
+
+
+        .sidebar-bottom {
+            margin-top: auto;
+
+            padding: 13px;
+        }
+
+        .farm-mini-card {
+            padding: 15px;
+
+            border-radius: 18px;
+
+            background:
+                rgba(78,210,117,.07);
+
+            border:
+                1px solid rgba(110,205,135,.13);
+        }
+
+        .farm-mini-card small {
+            color:
+                rgba(215,239,220,.45);
+
+            font-size: 10px;
+        }
+
+        .farm-mini-card strong {
+            display: block;
+
+            margin-top: 4px;
+
+            color: #e9ffef;
+        }
+
+
+        /* =========================================================
+           OVERLAY
+        ========================================================= */
+
+        .sidebar-overlay {
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(0,0,0,.42);
+
+            z-index: 90;
+
+            opacity: 0;
+            visibility: hidden;
+
+            transition: .35s;
+        }
+
+        .sidebar-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+
+        /* =========================================================
+           TOPBAR
+        ========================================================= */
+
+        .topbar {
+            position: sticky;
+
+            top: 0;
+
+            z-index: 50;
+
+            height: 76px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding:
+                0 28px;
+
+            background:
+                color-mix(
+                    in srgb,
+                    var(--card-solid) 78%,
+                    transparent
+                );
+
+            backdrop-filter: blur(18px);
+
+            border-bottom:
+                1px solid var(--border);
+
+            transition: .4s;
+        }
+
+
+        .top-left {
+            display: flex;
+
+            align-items: center;
+
+            gap: 14px;
+        }
+
+
+        .menu-button {
+            width: 43px;
+            height: 43px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 13px;
+
+            background: var(--card);
+
+            color: var(--text);
+
+            cursor: pointer;
+
+            font-size: 20px;
+
+            transition: .25s;
+        }
+
+        .menu-button:hover {
+            transform: translateY(-2px);
+
+            border-color:
+                rgba(42,200,103,.4);
+        }
+
+
+        .page-heading strong {
+            display: block;
+
+            font-size: 19px;
+        }
+
+        .page-heading span {
+            display: block;
+
+            margin-top: 2px;
+
+            color: var(--muted);
+
+            font-size: 11px;
+        }
+
+
+        .top-actions {
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+        }
+
+
+        .action-btn {
+            width: 43px;
+            height: 43px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 13px;
+
+            background: var(--card);
+
+            color: var(--text);
+
+            cursor: pointer;
+
+            transition: .25s;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+
+            background:
+                var(--green-soft);
+        }
+
+
+        .language-box {
+            display: flex;
+
+            gap: 3px;
+
+            padding: 4px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 11px;
+
+            background: var(--card);
+        }
+
+        .lang {
+            border: 0;
+
+            padding:
+                6px 9px;
+
+            border-radius: 8px;
+
+            color: var(--muted);
+
+            background: transparent;
+
+            font-weight: 800;
+
+            cursor: pointer;
+        }
+
+        .lang.active {
+            color: #04170c;
+
+            background: var(--green);
+        }
+
+
+        /* =========================================================
+           CONTENT
+        ========================================================= */
+
+        .main {
+            min-height: calc(100vh - 76px);
+
+            padding:
+                32px clamp(16px, 4vw, 45px);
+        }
+
+
+        .content {
+            max-width: 1450px;
+
+            margin: auto;
+        }
+
+
+        /* =========================================================
+           HERO
+        ========================================================= */
+
+        .hero {
+            position: relative;
+
+            overflow: hidden;
+
+            padding:
+                clamp(25px, 4vw, 42px);
+
+            border-radius: 30px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0b5932,
+                    #062819 75%
+                );
+
+            color: white;
+
+            box-shadow:
+                0 25px 70px rgba(5,60,31,.2);
+
+            animation:
+                cardAppear .7s ease;
+        }
+
+        .hero::after {
+            content: "";
+
+            position: absolute;
+
+            width: 330px;
+            height: 330px;
+
+            right: -80px;
+            top: -100px;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(80,235,132,.18),
+                    transparent 68%
+                );
+
+            animation:
+                heroGlow 7s ease-in-out infinite;
+        }
+
+        @keyframes heroGlow {
+
+            0%,100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.18);
+            }
+        }
+
+
+        .hero-content {
+            position: relative;
+
+            z-index: 2;
+
+            max-width: 700px;
+        }
+
+        .hero-tag {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            padding:
+                7px 12px;
+
+            border-radius: 999px;
+
+            background:
+                rgba(130,235,156,.10);
+
+            border:
+                1px solid rgba(150,240,170,.18);
+
+            color:
+                #a6f4bb;
+
+            font-size: 10px;
+
+            font-weight: 900;
+
+            letter-spacing: 1.2px;
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #5bef91;
+
+            box-shadow:
+                0 0 0 0 rgba(91,239,145,.6);
+
+            animation:
+                pulse 1.7s infinite;
+        }
+
+        @keyframes pulse {
+
+            70% {
+                box-shadow:
+                    0 0 0 9px rgba(91,239,145,0);
+            }
+
+            100% {
+                box-shadow:
+                    0 0 0 0 rgba(91,239,145,0);
+            }
+        }
+
+
+        .hero h1 {
+            margin:
+                18px 0 8px;
+
+            font-size:
+                clamp(32px, 5vw, 54px);
+
+            line-height: 1;
+
+            letter-spacing: -2px;
+
+            font-weight: 900;
+        }
+
+        .hero h1 span {
+            color: #54e88a;
+        }
+
+        .hero p {
+            margin: 0;
+
+            max-width: 620px;
+
+            color:
+                rgba(229,249,233,.66);
+
+            line-height: 1.7;
+
+            font-size: 14px;
+        }
+
+
+        /* =========================================================
+           STATS
+        ========================================================= */
+
+        .stats-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 16px;
+
+            margin-top: 20px;
+        }
+
+
+        .stat-card {
+            position: relative;
+
+            overflow: hidden;
+
+            padding: 21px;
+
+            border-radius: 22px;
+
+            background: var(--card);
+
+            border:
+                1px solid var(--border);
+
+            box-shadow: var(--shadow);
+
+            backdrop-filter: blur(15px);
+
+            animation:
+                cardAppear .6s ease both;
+
+            transition:
+                transform .3s,
+                border .3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+
+            border-color:
+                rgba(35,190,93,.3);
+        }
+
+        .stat-icon {
+            width: 43px;
+            height: 43px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 14px;
+
+            background:
+                var(--green-soft);
+
+            font-size: 21px;
+        }
+
+        .stat-card small {
+            display: block;
+
+            margin-top: 17px;
+
+            color: var(--muted);
+
+            font-size: 11px;
+
+            font-weight: 700;
+        }
+
+        .stat-number {
+            margin-top: 5px;
+
+            font-size: 28px;
+
+            font-weight: 900;
+        }
+
+        .stat-change {
+            margin-top: 4px;
+
+            color: var(--green);
+
+            font-size: 11px;
+
+            font-weight: 800;
+        }
+
+
+        /* =========================================================
+           SECTION HEADER
+        ========================================================= */
+
+        .section-head {
+            display: flex;
+
+            align-items: end;
+
+            justify-content: space-between;
+
+            margin:
+                30px 0 14px;
+        }
+
+        .section-head h2 {
+            margin: 0;
+
+            font-size: 22px;
+
+            letter-spacing: -.5px;
+        }
+
+        .section-head p {
+            margin: 4px 0 0;
+
+            color: var(--muted);
+
+            font-size: 12px;
+        }
+
+
+        /* =========================================================
+           FIELD CARDS
+        ========================================================= */
+
+        .field-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 17px;
+        }
+
+
+        .field-card {
+            position: relative;
+
+            padding: 21px;
+
+            border-radius: 23px;
+
+            background: var(--card);
+
+            border:
+                1px solid var(--border);
+
+            box-shadow: var(--shadow);
+
+            overflow: hidden;
+
+            transition:
+                transform .3s,
+                border .3s;
+        }
+
+        .field-card:hover {
+            transform: translateY(-5px);
+
+            border-color:
+                rgba(35,190,93,.28);
+        }
+
+
+        .field-top {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+        }
+
+
+        .field-name {
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+        }
+
+        .field-icon {
+            width: 42px;
+            height: 42px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 13px;
+
+            background:
+                var(--green-soft);
+
+            font-size: 21px;
+        }
+
+        .field-name strong {
+            display: block;
+
+            font-size: 15px;
+        }
+
+        .field-name span {
+            display: block;
+
+            margin-top: 3px;
+
+            color: var(--muted);
+
+            font-size: 10px;
+        }
+
+
+        .status {
+            padding:
+                6px 9px;
+
+            border-radius: 999px;
+
+            font-size: 9px;
+
+            font-weight: 900;
+
+            letter-spacing: .4px;
+        }
+
+        .status.ready {
+            color: #0b7c3c;
+
+            background:
+                rgba(43,204,101,.13);
+        }
+
+        .status.growing {
+            color: #bd8214;
+
+            background:
+                rgba(231,172,46,.13);
+        }
+
+
+        .harvest-progress {
+            margin-top: 22px;
+        }
+
+        .progress-info {
+            display: flex;
+
+            justify-content: space-between;
+
+            margin-bottom: 8px;
+
+            color: var(--muted);
+
+            font-size: 11px;
+
+            font-weight: 700;
+        }
+
+        .progress {
+            height: 9px;
+
+            border-radius: 999px;
+
+            overflow: hidden;
+
+            background:
+                var(--green-soft);
+        }
+
+        .progress-bar {
+            height: 100%;
+
+            border-radius: inherit;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #21ad5d,
+                    #5ce98b
+                );
+
+            box-shadow:
+                0 0 15px rgba(49,214,112,.2);
+
+            animation:
+                progressLoad 1.5s ease;
+        }
+
+        @keyframes progressLoad {
+
+            from {
+                width: 0 !important;
+            }
+        }
+
+
+        .field-details {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 9px;
+
+            margin-top: 19px;
+        }
+
+        .detail {
+            padding:
+                10px;
+
+            border-radius: 13px;
+
+            background:
+                var(--green-soft);
+        }
+
+        .detail small {
+            display: block;
+
+            color: var(--muted);
+
+            font-size: 9px;
+        }
+
+        .detail strong {
+            display: block;
+
+            margin-top: 4px;
+
+            font-size: 13px;
+        }
+
+
+        /* =========================================================
+           LOWER GRID
+        ========================================================= */
+
+        .lower-grid {
+            display: grid;
+
+            grid-template-columns:
+                1.2fr .8fr;
+
+            gap: 17px;
+
+            margin-top: 20px;
+        }
+
+
+        .panel {
+            padding: 23px;
+
+            border-radius: 24px;
+
+            background: var(--card);
+
+            border:
+                1px solid var(--border);
+
+            box-shadow: var(--shadow);
+        }
+
+
+        /* =========================================================
+           HARVEST TABLE
+        ========================================================= */
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 550px;
+        }
+
+        th {
+            padding:
+                13px 10px;
+
+            text-align: left;
+
+            color: var(--muted);
+
+            font-size: 10px;
+
+            letter-spacing: .8px;
+
+            text-transform: uppercase;
+
+            border-bottom:
+                1px solid var(--border);
+        }
+
+        td {
+            padding:
+                15px 10px;
+
+            border-bottom:
+                1px solid var(--border);
+
+            font-size: 12px;
+
+            font-weight: 650;
+        }
+
+        tr:last-child td {
+            border-bottom: 0;
+        }
+
+
+        .crop {
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+        }
+
+        .crop-icon {
+            width: 34px;
+            height: 34px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 10px;
+
+            background:
+                var(--green-soft);
+        }
+
+
+        /* =========================================================
+           UPCOMING
+        ========================================================= */
+
+        .timeline {
+            position: relative;
+
+            margin-top: 10px;
+        }
+
+        .timeline::before {
+            content: "";
+
+            position: absolute;
+
+            left: 17px;
+            top: 8px;
+            bottom: 8px;
+
+            width: 1px;
+
+            background:
+                var(--border);
+        }
+
+        .timeline-item {
+            position: relative;
+
+            display: flex;
+
+            gap: 14px;
+
+            padding:
+                11px 0;
+        }
+
+        .timeline-dot {
+            position: relative;
+
+            z-index: 2;
+
+            flex: 0 0 35px;
+
+            width: 35px;
+            height: 35px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 50%;
+
+            background:
+                var(--green-soft);
+
+            border:
+                1px solid rgba(34,190,92,.2);
+        }
+
+        .timeline-info strong {
+            display: block;
+
+            font-size: 12px;
+        }
+
+        .timeline-info span {
+            display: block;
+
+            margin-top: 4px;
+
+            color: var(--muted);
+
+            font-size: 10px;
+        }
+
+
+        /* =========================================================
+           ANIMATION
+        ========================================================= */
+
+        @keyframes cardAppear {
+
+            from {
+                opacity: 0;
+
+                transform:
+                    translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+
+                transform:
+                    translateY(0);
+            }
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media(max-width: 1100px) {
+
+            .stats-grid {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .field-grid {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .lower-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+
+        @media(max-width: 700px) {
+
+            .topbar {
+                padding:
+                    0 14px;
+            }
+
+            .page-heading span {
+                display: none;
+            }
+
+            .main {
+                padding:
+                    20px 13px;
+            }
+
+            .hero {
+                border-radius: 22px;
+            }
+
+            .stats-grid {
+                grid-template-columns:
+                    1fr 1fr;
+
+                gap: 10px;
+            }
+
+            .field-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .top-actions .language-box {
+                display: none;
+            }
+        }
+
+
+        @media(max-width: 440px) {
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 35px;
+            }
+
+            .stat-card {
+                padding: 17px;
+            }
+
+            .section-head {
+                align-items: start;
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+    <!-- Background -->
+
+    <div class="background-glow one"></div>
+    <div class="background-glow two"></div>
+
+    <div class="floating-leaf leaf-1">🌿</div>
+    <div class="floating-leaf leaf-2">🍃</div>
+    <div class="floating-leaf leaf-3">🌱</div>
+    <div class="floating-leaf leaf-4">🍃</div>
+
+
+    <!-- =========================================================
+         SIDEBAR
+    ========================================================= -->
+
+    <aside
+        id="sidebar"
+        class="sidebar"
+    >
+
+        <div class="sidebar-logo">
+
+            <img
+                src="{% static 'images/logo.png' %}"
+                alt="Green Harvest"
+            >
+
+            <div>
+
+                <strong>
+                    Green Harvest
+                </strong>
+
+                <span>
+                    SMART FARMING
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="nav-title">
+            <span data-en="Main Menu" data-bn="প্রধান মেনু"></span>
+        </div>
+
+
+        <a
+            href="{% url 'index' %}"
+            class="nav-link"
+        >
+            <span class="nav-icon">🏠</span>
+
+            <span
+                data-en="Home"
+                data-bn="হোম"
+            ></span>
+        </a>
+
+
+        <a
+            href="{% url 'dashboard' %}"
+            class="nav-link"
+        >
+            <span class="nav-icon">📊</span>
+
+            <span
+                data-en="Dashboard"
+                data-bn="ড্যাশবোর্ড"
+            ></span>
+        </a>
+
+
+        <a
+            href="{% url 'weather' %}"
+            class="nav-link"
+        >
+            <span class="nav-icon">🌦️</span>
+
+            <span
+                data-en="Weather"
+                data-bn="আবহাওয়া"
+            ></span>
+        </a>
+
+
+        <a
+            href="{% url 'water_management' %}"
+            class="nav-link"
+        >
+            <span class="nav-icon">💧</span>
+
+            <span
+                data-en="Water Management"
+                data-bn="পানি ব্যবস্থাপনা"
+            ></span>
+        </a>
+
+
+        <a
+            href="{% url 'harvest' %}"
+            class="nav-link active"
+        >
+            <span class="nav-icon">🌾</span>
+
+            <span
+                data-en="Harvest"
+                data-bn="ফসল সংগ্রহ"
+            ></span>
+        </a>
+
+
+        <a
+            href="{% url 'irrigation' %}"
+            class="nav-link"
+        >
+            <span class="nav-icon">🗓️</span>
+
+            <span
+                data-en="Schedule"
+                data-bn="সময়সূচি"
+            ></span>
+        </a>
+
+
+        <div class="nav-title">
+            <span
+                data-en="System"
+                data-bn="সিস্টেম"
+            ></span>
+        </div>
+
+
+        <a
+            href="#"
+            class="nav-link"
+        >
+            <span class="nav-icon">⚙️</span>
+
+            <span
+                data-en="Settings"
+                data-bn="সেটিংস"
+            ></span>
+        </a>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="farm-mini-card">
+
+                <small
+                    data-en="CURRENT FARM"
+                    data-bn="বর্তমান খামার"
+                ></small>
+
+                <strong>
+                    Green Harvest Farm
+                </strong>
+
+                <small
+                    style="margin-top:5px;"
+                    data-en="● System Online"
+                    data-bn="● সিস্টেম চালু আছে"
+                ></small>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <div
+        id="sidebarOverlay"
+        class="sidebar-overlay"
+        onclick="closeSidebar()"
+    ></div>
+
+
+
+    <!-- =========================================================
+         TOPBAR
+    ========================================================= -->
+
+    <header class="topbar">
+
+        <div class="top-left">
+
+            <button
+                class="menu-button"
+                onclick="toggleSidebar()"
+                aria-label="Menu"
+            >
+                ☰
+            </button>
+
+
+            <div class="page-heading">
+
+                <strong>
+                    🌾
+                    <span
+                        data-en="Harvest Management"
+                        data-bn="ফসল সংগ্রহ ব্যবস্থাপনা"
+                    ></span>
+                </strong>
+
+                <span
+                    data-en="Monitor your crops and harvest progress"
+                    data-bn="আপনার ফসল ও সংগ্রহের অগ্রগতি পর্যবেক্ষণ করুন"
+                ></span>
+
+            </div>
+
+        </div>
+
+
+        <div class="top-actions">
+
+            <!-- Language -->
+
+            <div class="language-box">
+
+                <button
+                    id="bnBtn"
+                    class="lang active"
+                    onclick="setLanguage('bn')"
+                >
+                    বাংলা
+                </button>
+
+                <button
+                    id="enBtn"
+                    class="lang"
+                    onclick="setLanguage('en')"
+                >
+                    EN
+                </button>
+
+            </div>
+
+
+            <!-- Theme -->
+
+            <button
+                id="themeBtn"
+                class="action-btn"
+                onclick="toggleTheme()"
+                title="Theme"
+            >
+                🌙
+            </button>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =========================================================
+         MAIN
+    ========================================================= -->
+
+    <main class="main">
+
+        <div class="content">
+
+
+            <!-- HERO -->
+
+            <section class="hero">
+
+                <div class="hero-content">
+
+                    <div class="hero-tag">
+
+                        <span class="live-dot"></span>
+
+                        <span
+                            data-en="LIVE HARVEST MONITORING"
+                            data-bn="লাইভ ফসল পর্যবেক্ষণ"
+                        ></span>
+
+                    </div>
+
+
+                    <h1>
+
+                        <span
+                            data-en="Harvest"
+                            data-bn="ফসল সংগ্রহ"
+                        ></span>
+
+                        <span
+                            data-en=" Center"
+                            data-bn=" কেন্দ্র"
+                        ></span>
+
+                    </h1>
+
+
+                    <p
+                        data-en="Track crop maturity, expected harvest dates, field progress and estimated yield from one place."
+                        data-bn="এক জায়গা থেকেই ফসলের পরিপক্বতা, সম্ভাব্য সংগ্রহের তারিখ, জমির অগ্রগতি এবং সম্ভাব্য ফলন পর্যবেক্ষণ করুন।"
+                    ></p>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 STATS
+            ================================================= -->
+
+            <section class="stats-grid">
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        🌾
+                    </div>
+
+                    <small
+                        data-en="TOTAL FIELDS"
+                        data-bn="মোট জমি"
+                    ></small>
+
+                    <div class="stat-number">
+                        06
+                    </div>
+
+                    <div
+                        class="stat-change"
+                        data-en="All monitored"
+                        data-bn="সবগুলো পর্যবেক্ষণে আছে"
+                    ></div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        🚜
+                    </div>
+
+                    <small
+                        data-en="READY TO HARVEST"
+                        data-bn="সংগ্রহের জন্য প্রস্তুত"
+                    ></small>
+
+                    <div class="stat-number">
+                        02
+                    </div>
+
+                    <div
+                        class="stat-change"
+                        data-en="Ready now"
+                        data-bn="এখনই সংগ্রহ করা যাবে"
+                    ></div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📦
+                    </div>
+
+                    <small
+                        data-en="ESTIMATED YIELD"
+                        data-bn="সম্ভাব্য ফলন"
+                    ></small>
+
+                    <div class="stat-number">
+                        1.84 T
+                    </div>
+
+                    <div
+                        class="stat-change"
+                        data-en="This season"
+                        data-bn="এই মৌসুমে"
+                    ></div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📅
+                    </div>
+
+                    <small
+                        data-en="NEXT HARVEST"
+                        data-bn="পরবর্তী সংগ্রহ"
+                    ></small>
+
+                    <div class="stat-number">
+                        04
+                    </div>
+
+                    <div
+                        class="stat-change"
+                        data-en="Days remaining"
+                        data-bn="দিন বাকি"
+                    ></div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 FIELD SECTION
+            ================================================= -->
+
+            <div class="section-head">
+
+                <div>
+
+                    <h2
+                        data-en="Field Harvest Status"
+                        data-bn="জমি অনুযায়ী ফসল সংগ্রহের অবস্থা"
+                    ></h2>
+
+                    <p
+                        data-en="Live maturity and harvest readiness"
+                        data-bn="ফসলের পরিপক্বতা ও সংগ্রহের বর্তমান অবস্থা"
+                    ></p>
+
+                </div>
+
+            </div>
+
+
+            <section class="field-grid">
+
+
+                <!-- FIELD A -->
+
+                <article class="field-card">
+
+                    <div class="field-top">
+
+                        <div class="field-name">
+
+                            <div class="field-icon">
+                                🌾
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Zone A
+                                </strong>
+
+                                <span
+                                    data-en="Rice Field"
+                                    data-bn="ধানের জমি"
+                                ></span>
+
+                            </div>
+
+                        </div>
+
+
+                        <span class="status ready">
+
+                            <span
+                                data-en="READY"
+                                data-bn="প্রস্তুত"
+                            ></span>
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="harvest-progress">
+
+                        <div class="progress-info">
+
+                            <span
+                                data-en="Maturity"
+                                data-bn="পরিপক্বতা"
+                            ></span>
+
+                            <strong>
+                                92%
+                            </strong>
+
+                        </div>
+
+                        <div class="progress">
+
+                            <div
+                                class="progress-bar"
+                                style="width:92%;"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="field-details">
+
+                        <div class="detail">
+
+                            <small
+                                data-en="Expected"
+                                data-bn="সম্ভাব্য তারিখ"
+                            ></small>
+
+                            <strong>
+                                04 Oct
+                            </strong>
+
+                        </div>
+
+                        <div class="detail">
+
+                            <small
+                                data-en="Yield"
+                                data-bn="ফলন"
+                            ></small>
+
+                            <strong>
+                                420 kg
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+
+                <!-- FIELD B -->
+
+                <article class="field-card">
+
+                    <div class="field-top">
+
+                        <div class="field-name">
+
+                            <div class="field-icon">
+                                🌱
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Zone B
+                                </strong>
+
+                                <span
+                                    data-en="Vegetable Field"
+                                    data-bn="সবজি ক্ষেত"
+                                ></span>
+
+                            </div>
+
+                        </div>
+
+
+                        <span class="status growing">
+
+                            <span
+                                data-en="GROWING"
+                                data-bn="বাড়ছে"
+                            ></span>
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="harvest-progress">
+
+                        <div class="progress-info">
+
+                            <span
+                                data-en="Maturity"
+                                data-bn="পরিপক্বতা"
+                            ></span>
+
+                            <strong>
+                                67%
+                            </strong>
+
+                        </div>
+
+                        <div class="progress">
+
+                            <div
+                                class="progress-bar"
+                                style="width:67%;"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="field-details">
+
+                        <div class="detail">
+
+                            <small
+                                data-en="Expected"
+                                data-bn="সম্ভাব্য তারিখ"
+                            ></small>
+
+                            <strong>
+                                12 Oct
+                            </strong>
+
+                        </div>
+
+                        <div class="detail">
+
+                            <small
+                                data-en="Yield"
+                                data-bn="ফলন"
+                            ></small>
+
+                            <strong>
+                                280 kg
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+
+                <!-- FIELD C -->
+
+                <article class="field-card">
+
+                    <div class="field-top">
+
+                        <div class="field-name">
+
+                            <div class="field-icon">
+                                🌽
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Zone C
+                                </strong>
+
+                                <span
+                                    data-en="Maize Field"
+                                    data-bn="ভুট্টার জমি"
+                                ></span>
+
+                            </div>
+
+                        </div>
+
+
+                        <span class="status ready">
+
+                            <span
+                                data-en="READY"
+                                data-bn="প্রস্তুত"
+                            ></span>
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="harvest-progress">
+
+                        <div class="progress-info">
+
+                            <span
+                                data-en="Maturity"
+                                data-bn="পরিপক্বতা"
+                            ></span>
+
+                            <strong>
+                                86%
+                            </strong>
+
+                        </div>
+
+                        <div class="progress">
+
+                            <div
+                                class="progress-bar"
+                                style="width:86%;"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="field-details">
+
+                        <div class="detail">
+
+                            <small
+                                data-en="Expected"
+                                data-bn="সম্ভাব্য তারিখ"
+                            ></small>
+
+                            <strong>
+                                07 Oct
+                            </strong>
+
+                        </div>
+
+                        <div class="detail">
+
+                            <small
+                                data-en="Yield"
+                                data-bn="ফলন"
+                            ></small>
+
+                            <strong>
+                                390 kg
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 LOWER
+            ================================================= -->
+
+            <section class="lower-grid">
+
+
+                <!-- TABLE -->
+
+                <div class="panel">
+
+                    <div class="section-head"
+                         style="margin-top:0;">
+
+                        <div>
+
+                            <h2
+                                data-en="Harvest Records"
+                                data-bn="ফসল সংগ্রহের রেকর্ড"
+                            ></h2>
+
+                            <p
+                                data-en="Recent field harvest information"
+                                data-bn="সাম্প্রতিক ফসল সংগ্রহের তথ্য"
+                            ></p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-wrap">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th
+                                        data-en="Field"
+                                        data-bn="জমি"
+                                    ></th>
+
+                                    <th
+                                        data-en="Crop"
+                                        data-bn="ফসল"
+                                    ></th>
+
+                                    <th
+                                        data-en="Date"
+                                        data-bn="তারিখ"
+                                    ></th>
+
+                                    <th
+                                        data-en="Yield"
+                                        data-bn="ফলন"
+                                    ></th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                <tr>
+
+                                    <td>
+                                        Zone A
+                                    </td>
+
+                                    <td>
+
+                                        <div class="crop">
+
+                                            <div class="crop-icon">
+                                                🌾
+                                            </div>
+
+                                            <span
+                                                data-en="Rice"
+                                                data-bn="ধান"
+                                            ></span>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        04 Oct
+                                    </td>
+
+                                    <td>
+                                        420 kg
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+                                        Zone C
+                                    </td>
+
+                                    <td>
+
+                                        <div class="crop">
+
+                                            <div class="crop-icon">
+                                                🌽
+                                            </div>
+
+                                            <span
+                                                data-en="Maize"
+                                                data-bn="ভুট্টা"
+                                            ></span>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        07 Oct
+                                    </td>
+
+                                    <td>
+                                        390 kg
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+                                        Zone B
+                                    </td>
+
+                                    <td>
+
+                                        <div class="crop">
+
+                                            <div class="crop-icon">
+                                                🥬
+                                            </div>
+
+                                            <span
+                                                data-en="Vegetables"
+                                                data-bn="সবজি"
+                                            ></span>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        12 Oct
+                                    </td>
+
+                                    <td>
+                                        280 kg
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- TIMELINE -->
+
+                <div class="panel">
+
+                    <div class="section-head"
+                         style="margin-top:0;">
+
+                        <div>
+
+                            <h2
+                                data-en="Upcoming"
+                                data-bn="আসন্ন কাজ"
+                            ></h2>
+
+                            <p
+                                data-en="Harvest activities"
+                                data-bn="ফসল সংগ্রহের কার্যক্রম"
+                            ></p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="timeline">
+
+
+                        <div class="timeline-item">
+
+                            <div class="timeline-dot">
+                                🌾
+                            </div>
+
+                            <div class="timeline-info">
+
+                                <strong
+                                    data-en="Zone A harvest"
+                                    data-bn="Zone A ফসল সংগ্রহ"
+                                ></strong>
+
+                                <span
+                                    data-en="04 October • Ready"
+                                    data-bn="৪ অক্টোবর • প্রস্তুত"
+                                ></span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="timeline-item">
+
+                            <div class="timeline-dot">
+                                🌽
+                            </div>
+
+                            <div class="timeline-info">
+
+                                <strong
+                                    data-en="Zone C harvest"
+                                    data-bn="Zone C ফসল সংগ্রহ"
+                                ></strong>
+
+                                <span
+                                    data-en="07 October • In 10 days"
+                                    data-bn="৭ অক্টোবর • ১০ দিন পর"
+                                ></span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="timeline-item">
+
+                            <div class="timeline-dot">
+                                🥬
+                            </div>
+
+                            <div class="timeline-info">
+
+                                <strong
+                                    data-en="Zone B harvest"
+                                    data-bn="Zone B ফসল সংগ্রহ"
+                                ></strong>
+
+                                <span
+                                    data-en="12 October • Growing"
+                                    data-bn="১২ অক্টোবর • বৃদ্ধি পাচ্ছে"
+                                ></span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="timeline-item">
+
+                            <div class="timeline-dot">
+                                🚜
+                            </div>
+
+                            <div class="timeline-info">
+
+                                <strong
+                                    data-en="Prepare harvest equipment"
+                                    data-bn="ফসল সংগ্রহের যন্ত্রপাতি প্রস্তুত করুন"
+                                ></strong>
+
+                                <span
+                                    data-en="Before next harvest"
+                                    data-bn="পরবর্তী সংগ্রহের আগে"
+                                ></span>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+
+    <!-- =========================================================
+         JAVASCRIPT
+    ========================================================= -->
+
+    <script>
+
+        /* =====================================================
+           SIDEBAR
+        ===================================================== */
+
+        const sidebar =
+            document.getElementById("sidebar");
+
+        const overlay =
+            document.getElementById("sidebarOverlay");
+
+
+        function toggleSidebar() {
+
+            sidebar.classList.toggle("open");
+
+            overlay.classList.toggle(
+                "show"
+            );
+
+        }
+
+
+        function closeSidebar() {
+
+            sidebar.classList.remove(
+                "open"
+            );
+
+            overlay.classList.remove(
+                "show"
+            );
+
+        }
+
+
+        /* =====================================================
+           THEME
+        ===================================================== */
+
+        const themeButton =
+            document.getElementById(
+                "themeBtn"
+            );
+
+
+        function applyTheme(theme) {
+
+            if (theme === "dark") {
+
+                document.body.classList.add(
+                    "dark"
+                );
+
+                themeButton.textContent = "☀️";
+
+            } else {
+
+                document.body.classList.remove(
+                    "dark"
+                );
+
+                themeButton.textContent = "🌙";
+
+            }
+
+            localStorage.setItem(
+                "greenHarvestTheme",
+                theme
+            );
+
+        }
+
+
+        function toggleTheme() {
+
+            const isDark =
+                document.body.classList.contains(
+                    "dark"
+                );
+
+            applyTheme(
+                isDark
+                    ? "light"
+                    : "dark"
+            );
+
+        }
+
+
+        /* =====================================================
+           LANGUAGE
+        ===================================================== */
+
+        let currentLanguage =
+            localStorage.getItem(
+                "greenHarvestLanguage"
+            ) || "bn";
+
+
+        function setLanguage(language) {
+
+            currentLanguage =
+                language;
+
+
+            localStorage.setItem(
+                "greenHarvestLanguage",
+                language
+            );
+
+
+            document.documentElement.lang =
+                language;
+
+
+            document
+                .querySelectorAll(
+                    "[data-en][data-bn]"
+                )
+                .forEach(element => {
+
+                    element.textContent =
+                        element.dataset[
+                            language
+                        ];
+
+                });
+
+
+            document
+                .getElementById("bnBtn")
+                .classList.toggle(
+                    "active",
+                    language === "bn"
+                );
+
+
+            document
+                .getElementById("enBtn")
+                .classList.toggle(
+                    "active",
+                    language === "en"
+                );
+
+        }
+
+
+        /* =====================================================
+           LIVE CLOCK
+        ===================================================== */
+
+        function updateLiveTime() {
+
+            const now =
+                new Date();
+
+            const time =
+                now.toLocaleTimeString(
+                    "en-US",
+                    {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit"
+                    }
+                );
+
+            document.title =
+                `Green Harvest • ${time}`;
+
+        }
+
+
+        setInterval(
+            updateLiveTime,
+            1000
+        );
+
+
+        /* =====================================================
+           INITIAL SETTINGS
+        ===================================================== */
+
+        const savedTheme =
+            localStorage.getItem(
+                "greenHarvestTheme"
+            ) || "light";
+
+
+        applyTheme(
+            savedTheme
+        );
+
+
+        setLanguage(
+            currentLanguage
+        );
+
+
+        /* =====================================================
+           ESC CLOSE SIDEBAR
+        ===================================================== */
+
+        document.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (
+                    event.key === "Escape"
+                ) {
+
+                    closeSidebar();
+
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>

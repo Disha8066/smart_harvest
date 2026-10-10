@@ -1,0 +1,3889 @@
+{% extends "base.html" %}
+
+{% block title %}Water Management | Smart Harvest{% endblock %}
+
+{% block content %}
+
+<style>
+/* =========================================================
+   SMART HARVEST - WATER MANAGEMENT
+   ========================================================= */
+
+:root {
+    --green-950: #0b351e;
+    --green-900: #104b29;
+    --green-800: #176638;
+    --green-700: #198447;
+    --green-600: #20a653;
+    --green-500: #36bd68;
+    --green-400: #65d98b;
+    --green-200: #ccefd7;
+    --green-100: #eaf9ee;
+
+    --water: #249bc9;
+    --water-light: #73d7f4;
+
+    --cream: #f8fcf3;
+    --white: rgba(255,255,255,.91);
+
+    --text: #203c2a;
+    --muted: #75867b;
+    --border: rgba(116,150,126,.25);
+
+    --shadow:
+        0 18px 50px rgba(18,83,43,.12);
+}
+
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.water-page {
+    position: relative;
+    min-height: calc(100vh - 70px);
+
+    padding: 18px 22px 45px;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 8% 12%,
+            rgba(86,211,119,.23),
+            transparent 26%
+        ),
+        radial-gradient(
+            circle at 90% 18%,
+            rgba(51,177,91,.16),
+            transparent 25%
+        ),
+        linear-gradient(
+            135deg,
+            #dff4e3 0%,
+            #eef8e9 45%,
+            #f7faee 100%
+        );
+}
+
+
+/* animated green glow */
+
+.water-page::before,
+.water-page::after {
+    content: "";
+    position: absolute;
+
+    width: 420px;
+    height: 420px;
+
+    border-radius: 50%;
+
+    filter: blur(5px);
+
+    pointer-events: none;
+
+    z-index: 0;
+}
+
+.water-page::before {
+    background: rgba(42,180,88,.12);
+
+    top: -190px;
+    left: -140px;
+
+    animation:
+        greenFloat 9s ease-in-out infinite;
+}
+
+.water-page::after {
+    background: rgba(95,214,123,.12);
+
+    right: -160px;
+    bottom: 5%;
+
+    animation:
+        greenFloat 11s ease-in-out infinite reverse;
+}
+
+@keyframes greenFloat {
+
+    0%,100% {
+        transform: translate(0,0) scale(1);
+    }
+
+    50% {
+        transform: translate(30px,35px) scale(1.08);
+    }
+}
+
+
+/* =========================================================
+   FLOATING LEAVES
+   ========================================================= */
+
+.floating-leaves {
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    overflow: hidden;
+
+    z-index: 0;
+}
+
+.leaf {
+    position: absolute;
+
+    font-size: 22px;
+
+    opacity: .22;
+
+    animation:
+        leafFloat linear infinite;
+}
+
+.leaf:nth-child(1) {
+    left: 7%;
+    top: 18%;
+    animation-duration: 10s;
+}
+
+.leaf:nth-child(2) {
+    left: 22%;
+    top: 70%;
+    animation-duration: 13s;
+}
+
+.leaf:nth-child(3) {
+    left: 53%;
+    top: 10%;
+    animation-duration: 12s;
+}
+
+.leaf:nth-child(4) {
+    left: 75%;
+    top: 60%;
+    animation-duration: 14s;
+}
+
+.leaf:nth-child(5) {
+    left: 91%;
+    top: 25%;
+    animation-duration: 11s;
+}
+
+@keyframes leafFloat {
+
+    0% {
+        transform:
+            translateY(40px)
+            rotate(0deg);
+
+        opacity: 0;
+    }
+
+    15% {
+        opacity: .2;
+    }
+
+    50% {
+        transform:
+            translateY(-50px)
+            translateX(35px)
+            rotate(180deg);
+    }
+
+    85% {
+        opacity: .16;
+    }
+
+    100% {
+        transform:
+            translateY(-130px)
+            translateX(-20px)
+            rotate(360deg);
+
+        opacity: 0;
+    }
+}
+
+
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+
+.harvest-navbar {
+    position: relative;
+    z-index: 20;
+
+    max-width: 1500px;
+
+    margin: 0 auto 20px;
+
+    min-height: 68px;
+
+    padding: 10px 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    background:
+        rgba(255,255,255,.88);
+
+    border:
+        1px solid rgba(255,255,255,.9);
+
+    border-radius: 21px;
+
+    box-shadow:
+        0 12px 35px rgba(22,91,46,.10);
+
+    backdrop-filter: blur(18px);
+
+    animation:
+        navAppear .7s ease both;
+}
+
+@keyframes navAppear {
+
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    text-decoration: none;
+
+    color: var(--green-900);
+}
+
+.brand-logo {
+    width: 43px;
+    height: 43px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #d9f7df,
+            #b8edc5
+        );
+
+    font-size: 22px;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(30,130,65,.08);
+}
+
+.brand-text strong {
+    display: block;
+
+    font-size: 17px;
+}
+
+.brand-text span {
+    display: block;
+
+    margin-top: 1px;
+
+    color: #819087;
+
+    font-size: 10px;
+}
+
+
+.nav-links {
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+}
+
+.nav-link {
+    position: relative;
+
+    padding: 10px 13px;
+
+    border-radius: 12px;
+
+    text-decoration: none;
+
+    color: #627168;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    transition: .25s;
+}
+
+.nav-link:hover {
+    color: var(--green-700);
+
+    background: #edf9ef;
+
+    transform: translateY(-1px);
+}
+
+.nav-link.active {
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--green-700),
+            var(--green-500)
+        );
+
+    box-shadow:
+        0 7px 17px rgba(32,166,83,.20);
+}
+
+
+.nav-live {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 9px 13px;
+
+    border-radius: 20px;
+
+    background: #effaf1;
+
+    color: var(--green-700);
+
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.nav-live-dot {
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: #1daf57;
+
+    animation: liveDot 1.4s infinite;
+}
+
+@keyframes liveDot {
+
+    0%,100% {
+        box-shadow:
+            0 0 0 3px rgba(29,175,87,.12);
+    }
+
+    50% {
+        box-shadow:
+            0 0 0 8px rgba(29,175,87,.03);
+    }
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.page-header {
+    position: relative;
+    z-index: 2;
+
+    max-width: 1500px;
+
+    margin: 0 auto 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+}
+
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.page-title-icon {
+    width: 50px;
+    height: 50px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #d9f7df,
+            #c3efce
+        );
+
+    font-size: 25px;
+
+    box-shadow:
+        0 8px 25px rgba(32,166,83,.12);
+}
+
+.page-title h1 {
+    margin: 0;
+
+    color: var(--green-950);
+
+    font-size: 25px;
+}
+
+.page-title p {
+    margin: 3px 0 0;
+
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+
+.clock-card {
+    padding: 10px 15px;
+
+    border-radius: 15px;
+
+    background: rgba(255,255,255,.78);
+
+    border: 1px solid var(--border);
+
+    color: var(--green-900);
+
+    font-size: 13px;
+    font-weight: 800;
+
+    box-shadow:
+        0 8px 25px rgba(35,95,49,.07);
+}
+
+
+/* =========================================================
+   MAIN GRID
+   ========================================================= */
+
+.water-grid {
+    position: relative;
+    z-index: 2;
+
+    max-width: 1500px;
+
+    margin: 0 auto;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1.55fr)
+        minmax(360px, .9fr);
+
+    gap: 20px;
+}
+
+
+/* =========================================================
+   PANEL
+   ========================================================= */
+
+.panel {
+    background:
+        rgba(255,255,255,.87);
+
+    border:
+        1px solid rgba(211,227,214,.8);
+
+    border-radius: 24px;
+
+    overflow: hidden;
+
+    box-shadow: var(--shadow);
+
+    backdrop-filter: blur(18px);
+
+    animation:
+        panelIn .65s ease both;
+}
+
+.panel:nth-child(2) {
+    animation-delay: .08s;
+}
+
+@keyframes panelIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+.panel-header {
+    min-height: 68px;
+
+    padding: 0 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-bottom:
+        1px solid rgba(119,150,128,.18);
+}
+
+.panel-title {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.panel-icon {
+    color: var(--green-600);
+
+    font-size: 21px;
+}
+
+.panel-title h2 {
+    margin: 0;
+
+    font-size: 16px;
+
+    color: #405448;
+}
+
+.panel-title p {
+    margin: 2px 0 0;
+
+    color: #8b9990;
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   FARM DIAGRAM
+   ========================================================= */
+
+.farm-diagram {
+    position: relative;
+
+    min-height: 545px;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            180deg,
+            #f8fcf4,
+            #f0f8ea
+        );
+}
+
+
+/* soft sun */
+
+.farm-diagram::before {
+    content: "";
+
+    position: absolute;
+
+    width: 160px;
+    height: 160px;
+
+    right: 30px;
+    top: 25px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,220,116,.16),
+            transparent 68%
+        );
+
+    animation:
+        sunPulse 5s ease-in-out infinite;
+}
+
+@keyframes sunPulse {
+
+    0%,100% {
+        transform: scale(1);
+        opacity: .65;
+    }
+
+    50% {
+        transform: scale(1.13);
+        opacity: 1;
+    }
+}
+
+
+/* ground */
+
+.farm-ground {
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    height: 100px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(104,165,77,.08),
+            rgba(89,153,67,.20)
+        );
+
+    border-top:
+        1px solid rgba(92,151,74,.12);
+}
+
+
+/* =========================================================
+   TANK
+   ========================================================= */
+
+.tank-area {
+    position: absolute;
+
+    left: 45px;
+    top: 45px;
+
+    width: 140px;
+
+    text-align: center;
+
+    z-index: 7;
+}
+
+.tank-label {
+    margin-bottom: 9px;
+
+    color: #7f9085;
+
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.tank {
+    position: relative;
+
+    width: 115px;
+    height: 175px;
+
+    margin: auto;
+
+    border:
+        4px solid #aabaae;
+
+    border-radius:
+        16px 16px 20px 20px;
+
+    overflow: hidden;
+
+    background:
+        rgba(230,240,225,.7);
+
+    box-shadow:
+        inset 0 0 20px rgba(56,94,58,.05);
+}
+
+.tank::before {
+    content: "";
+
+    position: absolute;
+
+    left: 14px;
+    right: 14px;
+    top: -10px;
+
+    height: 17px;
+
+    border-radius: 20px;
+
+    background: #aabaae;
+
+    z-index: 5;
+}
+
+.tank-water {
+    position: absolute;
+
+    left: 6px;
+    right: 6px;
+    bottom: 6px;
+
+    height: 84%;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            180deg,
+            #62d3ef,
+            #248db9
+        );
+
+    transition:
+        height 1s ease;
+}
+
+.tank-water::before,
+.tank-water::after {
+    content: "";
+
+    position: absolute;
+
+    left: -25%;
+
+    width: 150%;
+
+    height: 25px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.27);
+}
+
+.tank-water::before {
+    top: -11px;
+
+    animation:
+        tankWave 2.7s ease-in-out infinite;
+}
+
+.tank-water::after {
+    top: 4px;
+
+    opacity: .15;
+
+    animation:
+        tankWave 3.2s ease-in-out infinite reverse;
+}
+
+@keyframes tankWave {
+
+    0%,100% {
+        transform: translateX(0);
+    }
+
+    50% {
+        transform: translateX(-28px);
+    }
+}
+
+.tank-percent {
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    z-index: 8;
+
+    color: #123d29;
+
+    font-size: 17px;
+    font-weight: 900;
+}
+
+
+/* =========================================================
+   PIPE SYSTEM
+   ========================================================= */
+
+.pipe {
+    position: absolute;
+
+    background: #aebbb1;
+
+    border-radius: 20px;
+
+    z-index: 3;
+}
+
+.main-pipe {
+    left: 165px;
+    right: 50px;
+
+    top: 380px;
+
+    height: 5px;
+}
+
+.tank-pipe {
+    left: 165px;
+    top: 220px;
+
+    width: 5px;
+    height: 160px;
+}
+
+.water-flow-horizontal {
+    position: absolute;
+
+    inset: -1px 0;
+
+    opacity: 0;
+
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #218fbe 0 17px,
+            transparent 17px 31px
+        );
+
+    animation:
+        horizontalFlow .85s linear infinite;
+}
+
+.water-flow-vertical {
+    position: absolute;
+
+    inset: 0 -1px;
+
+    opacity: 0;
+
+    background:
+        repeating-linear-gradient(
+            180deg,
+            #218fbe 0 16px,
+            transparent 16px 29px
+        );
+
+    animation:
+        verticalFlow .85s linear infinite;
+}
+
+.pump-running .water-flow-horizontal,
+.pump-running .water-flow-vertical {
+    opacity: 1;
+}
+
+@keyframes horizontalFlow {
+
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 31px 0;
+    }
+}
+
+@keyframes verticalFlow {
+
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 0 29px;
+    }
+}
+
+
+/* =========================================================
+   PUMP
+   ========================================================= */
+
+.pump-area {
+    position: absolute;
+
+    left: 195px;
+    top: 320px;
+
+    width: 90px;
+
+    text-align: center;
+
+    z-index: 9;
+}
+
+.pump {
+    position: relative;
+
+    width: 62px;
+    height: 62px;
+
+    margin: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #f0f4ed,
+            #d4dfd3
+        );
+
+    border:
+        4px solid #aab9ad;
+
+    font-size: 25px;
+
+    box-shadow:
+        0 9px 20px rgba(55,83,60,.14);
+
+    transition: .3s;
+}
+
+.pump-running .pump {
+    border-color: var(--green-600);
+
+    background:
+        linear-gradient(
+            145deg,
+            #e4fae9,
+            #b9edc8
+        );
+
+    animation:
+        pumpRunning 1s infinite;
+}
+
+@keyframes pumpRunning {
+
+    0%,100% {
+        transform: scale(1) rotate(0deg);
+
+        box-shadow:
+            0 0 0 0 rgba(32,166,83,.20);
+    }
+
+    50% {
+        transform: scale(1.08) rotate(8deg);
+
+        box-shadow:
+            0 0 0 11px rgba(32,166,83,.04);
+    }
+}
+
+.pump-label {
+    margin-top: 9px;
+
+    color: #2e4938;
+
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.pump-sub {
+    margin-top: 2px;
+
+    color: #89968e;
+
+    font-size: 9px;
+}
+
+
+/* =========================================================
+   ZONES
+   ========================================================= */
+
+.zones {
+    position: absolute;
+
+    left: 39%;
+    right: 45px;
+
+    top: 90px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 20px;
+
+    z-index: 6;
+}
+
+.zone {
+    position: relative;
+
+    min-height: 120px;
+
+    padding: 15px 10px;
+
+    text-align: center;
+
+    background:
+        rgba(239,248,233,.9);
+
+    border:
+        2px solid #b5c4b7;
+
+    transition:
+        transform .3s,
+        border-color .3s,
+        box-shadow .3s;
+}
+
+.zone:hover {
+    transform: translateY(-5px);
+
+    border-color: #6eaa73;
+
+    box-shadow:
+        0 10px 25px rgba(55,110,59,.10);
+}
+
+.zone.active {
+    border-color: var(--green-600);
+
+    background:
+        linear-gradient(
+            145deg,
+            #f1fcf2,
+            #def4e3
+        );
+
+    box-shadow:
+        0 10px 28px rgba(32,166,83,.13);
+}
+
+.crop {
+    font-size: 27px;
+
+    letter-spacing: 2px;
+
+    animation:
+        cropMove 3s ease-in-out infinite;
+}
+
+@keyframes cropMove {
+
+    0%,100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+.zone h3 {
+    margin: 5px 0 3px;
+
+    color: #334c3b;
+
+    font-size: 12px;
+}
+
+.zone p {
+    margin: 0;
+
+    color: #829087;
+
+    font-size: 9px;
+}
+
+.zone-pipe {
+    position: absolute;
+
+    left: 50%;
+    top: 100%;
+
+    width: 4px;
+    height: 115px;
+
+    transform: translateX(-50%);
+
+    background: #b3beb4;
+
+    z-index: -1;
+}
+
+.zone-water {
+    position: absolute;
+
+    inset: 0;
+
+    opacity: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(45,170,93,.04),
+            rgba(45,170,93,.11),
+            rgba(45,170,93,.04)
+        );
+
+    pointer-events: none;
+}
+
+.zone.active .zone-water {
+    opacity: 1;
+
+    animation:
+        zoneGlow 1.5s infinite;
+}
+
+@keyframes zoneGlow {
+
+    0%,100% {
+        opacity: .25;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+.zone-pipe-flow {
+    position: absolute;
+
+    inset: 0;
+
+    opacity: 0;
+
+    background:
+        repeating-linear-gradient(
+            180deg,
+            #258fbe 0 15px,
+            transparent 15px 29px
+        );
+
+    animation:
+        verticalFlow .75s linear infinite;
+}
+
+.pump-running .zone.active .zone-pipe-flow {
+    opacity: 1;
+}
+
+
+/* =========================================================
+   RIGHT CONTROL
+   ========================================================= */
+
+.control-body {
+    padding: 20px;
+}
+
+.control-row {
+    padding: 17px 0;
+
+    border-bottom:
+        1px dashed #dbe4dc;
+}
+
+.control-row:last-child {
+    border-bottom: none;
+}
+
+.control-label {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 11px;
+
+    color: #718078;
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+
+/* switch */
+
+.switch-wrap {
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+}
+
+.switch {
+    position: relative;
+
+    width: 66px;
+    height: 35px;
+
+    border-radius: 30px;
+
+    background: #d1ddd3;
+
+    cursor: pointer;
+
+    transition: .3s;
+}
+
+.switch::after {
+    content: "";
+
+    position: absolute;
+
+    width: 27px;
+    height: 27px;
+
+    left: 4px;
+    top: 4px;
+
+    border-radius: 50%;
+
+    background: white;
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,.15);
+
+    transition: .3s;
+}
+
+.switch.active {
+    background: var(--green-600);
+}
+
+.switch.active::after {
+    transform: translateX(31px);
+}
+
+
+/* range */
+
+.range-wrap {
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+}
+
+.range-wrap input {
+    flex: 1;
+
+    accent-color: var(--green-600);
+
+    cursor: pointer;
+}
+
+.range-value {
+    min-width: 45px;
+
+    text-align: right;
+
+    color: #274533;
+
+    font-size: 18px;
+    font-weight: 900;
+}
+
+
+/* pump button */
+
+.pump-button {
+    width: 100%;
+
+    border: none;
+
+    padding: 14px;
+
+    border-radius: 15px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #198b4a,
+            #2db963
+        );
+
+    font-size: 13px;
+    font-weight: 900;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 9px 23px rgba(32,166,83,.20);
+
+    transition: .3s;
+}
+
+.pump-button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 13px 28px rgba(32,166,83,.27);
+}
+
+.pump-button.off {
+    background:
+        linear-gradient(
+            135deg,
+            #6d7d73,
+            #849189
+        );
+
+    box-shadow: none;
+}
+
+
+/* live cards */
+
+.live-data {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2,1fr);
+
+    gap: 10px;
+}
+
+.data-card {
+    padding: 13px;
+
+    border:
+        1px solid #e0e9e1;
+
+    border-radius: 15px;
+
+    background:
+        rgba(246,251,244,.8);
+}
+
+.data-card span {
+    display: block;
+
+    color: #8a978f;
+
+    font-size: 9px;
+
+    margin-bottom: 4px;
+}
+
+.data-card strong {
+    color: #294634;
+
+    font-size: 17px;
+}
+
+
+/* =========================================================
+   SCHEDULE
+   ========================================================= */
+
+.schedule-panel {
+    position: relative;
+    z-index: 2;
+
+    max-width: 1500px;
+
+    margin: 20px auto 0;
+
+    background:
+        rgba(255,255,255,.89);
+
+    border:
+        1px solid rgba(211,227,214,.8);
+
+    border-radius: 24px;
+
+    overflow: hidden;
+
+    box-shadow: var(--shadow);
+
+    backdrop-filter: blur(18px);
+
+    animation:
+        panelIn .7s .15s ease both;
+}
+
+
+/* schedule header */
+
+.schedule-head {
+    min-height: 70px;
+
+    padding: 0 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-bottom:
+        1px solid rgba(119,150,128,.18);
+}
+
+.schedule-title {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.schedule-title-icon {
+    color: var(--green-600);
+
+    font-size: 22px;
+}
+
+.schedule-title h2 {
+    margin: 0;
+
+    color: #405448;
+
+    font-size: 16px;
+}
+
+.schedule-title p {
+    margin: 2px 0 0;
+
+    color: #8b9990;
+
+    font-size: 10px;
+}
+
+
+/* table */
+
+.schedule-table {
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+.schedule-table th {
+    padding: 17px 20px;
+
+    text-align: left;
+
+    color: #7e8c83;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    background:
+        rgba(245,250,242,.65);
+
+    border-bottom:
+        1px solid #dbe4dc;
+}
+
+.schedule-table td {
+    padding: 18px 20px;
+
+    color: #203c2a;
+
+    font-size: 13px;
+
+    border-bottom:
+        1px solid #e3e9e2;
+
+    transition: .25s;
+}
+
+.schedule-table tbody tr {
+    transition: .25s;
+}
+
+.schedule-table tbody tr:hover {
+    background:
+        rgba(235,249,237,.55);
+}
+
+.zone-name {
+    font-weight: 900;
+}
+
+.zone-name span {
+    color: #7e8d83;
+
+    font-weight: 600;
+}
+
+
+/* schedule toggle */
+
+.schedule-switch {
+    position: relative;
+
+    display: inline-block;
+
+    width: 70px;
+    height: 38px;
+
+    cursor: pointer;
+}
+
+.schedule-switch input {
+    display: none;
+}
+
+.schedule-slider {
+    position: absolute;
+
+    inset: 0;
+
+    border-radius: 30px;
+
+    background: #d3ded5;
+
+    transition: .3s;
+}
+
+.schedule-slider::after {
+    content: "";
+
+    position: absolute;
+
+    width: 28px;
+    height: 28px;
+
+    top: 5px;
+    left: 5px;
+
+    border-radius: 50%;
+
+    background: white;
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,.15);
+
+    transition: .3s;
+}
+
+.schedule-switch input:checked + .schedule-slider {
+    background: var(--green-600);
+}
+
+.schedule-switch input:checked + .schedule-slider::after {
+    transform: translateX(32px);
+}
+
+
+/* delete */
+
+.delete-btn {
+    width: 38px;
+    height: 38px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    background: #fff4f1;
+
+    color: #db5b45;
+
+    font-size: 17px;
+
+    cursor: pointer;
+
+    transition: .25s;
+}
+
+.delete-btn:hover {
+    background: #ffe4df;
+
+    transform: scale(1.08);
+}
+
+
+/* =========================================================
+   ADD SCHEDULE
+   ========================================================= */
+
+.add-schedule {
+    padding: 18px;
+
+    display: grid;
+
+    grid-template-columns:
+        1.1fr
+        1.1fr
+        1.1fr
+        auto;
+
+    gap: 12px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #f5faef,
+            #eff8e9
+        );
+
+    border-top:
+        1px solid #dce6dc;
+}
+
+.field {
+    position: relative;
+}
+
+.field select,
+.field input {
+    width: 100%;
+
+    height: 50px;
+
+    padding: 0 15px;
+
+    border:
+        1px solid #aebdaf;
+
+    border-radius: 13px;
+
+    outline: none;
+
+    background:
+        rgba(255,255,255,.4);
+
+    color: #294533;
+
+    font-size: 13px;
+
+    transition: .25s;
+}
+
+.field select:focus,
+.field input:focus {
+    border-color: var(--green-600);
+
+    box-shadow:
+        0 0 0 4px rgba(32,166,83,.08);
+}
+
+.add-btn {
+    height: 50px;
+
+    padding: 0 20px;
+
+    border: none;
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #199b4e,
+            #28b85f
+        );
+
+    color: white;
+
+    font-weight: 900;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 20px rgba(25,155,78,.18);
+
+    transition: .25s;
+}
+
+.add-btn:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 25px rgba(25,155,78,.25);
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+.toast {
+    position: fixed;
+
+    right: 25px;
+    bottom: 25px;
+
+    z-index: 100;
+
+    min-width: 250px;
+
+    padding: 14px 17px;
+
+    border-radius: 15px;
+
+    background:
+        rgba(20,61,34,.94);
+
+    color: white;
+
+    box-shadow:
+        0 15px 35px rgba(0,0,0,.17);
+
+    transform:
+        translateY(100px);
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition: .35s;
+}
+
+.toast.show {
+    transform:
+        translateY(0);
+
+    opacity: 1;
+}
+
+.toast strong {
+    display: block;
+
+    margin-bottom: 2px;
+
+    font-size: 13px;
+}
+
+.toast span {
+    color: #cdebd5;
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 1100px) {
+
+    .water-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .control-panel {
+        min-height: auto;
+    }
+}
+
+
+@media (max-width: 850px) {
+
+    .harvest-navbar {
+        flex-wrap: wrap;
+    }
+
+    .nav-links {
+        order: 3;
+
+        width: 100%;
+
+        overflow-x: auto;
+
+        justify-content: flex-start;
+    }
+
+    .nav-link {
+        white-space: nowrap;
+    }
+
+    .add-schedule {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .add-btn {
+        width: 100%;
+    }
+
+    .schedule-table {
+        min-width: 750px;
+    }
+
+    .schedule-panel {
+        overflow-x: auto;
+    }
+
+    .schedule-head {
+        min-width: 750px;
+    }
+}
+
+
+@media (max-width: 650px) {
+
+    .water-page {
+        padding: 12px 10px 30px;
+    }
+
+    .page-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .clock-card {
+        width: 100%;
+
+        text-align: center;
+    }
+
+    .farm-diagram {
+        min-height: 650px;
+    }
+
+    .tank-area {
+        left: 20px;
+        top: 35px;
+
+        transform: scale(.9);
+
+        transform-origin: top left;
+    }
+
+    .tank-pipe {
+        left: 132px;
+        top: 195px;
+
+        height: 185px;
+    }
+
+    .main-pipe {
+        left: 130px;
+        right: 25px;
+
+        top: 380px;
+    }
+
+    .pump-area {
+        left: 145px;
+        top: 315px;
+    }
+
+    .zones {
+        left: 18px;
+        right: 18px;
+
+        top: 465px;
+
+        gap: 7px;
+    }
+
+    .zone {
+        min-height: 95px;
+
+        padding: 9px 4px;
+    }
+
+    .crop {
+        font-size: 21px;
+    }
+
+    .zone h3 {
+        font-size: 9px;
+    }
+
+    .zone p {
+        font-size: 8px;
+    }
+
+    .zone-pipe {
+        display: none;
+    }
+
+    .add-schedule {
+        grid-template-columns: 1fr;
+    }
+
+    .live-data {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+
+@media (max-width: 420px) {
+
+    .brand-text {
+        display: none;
+    }
+
+    .nav-live {
+        margin-left: auto;
+    }
+
+    .page-title h1 {
+        font-size: 21px;
+    }
+
+    .panel-header {
+        padding: 0 15px;
+    }
+
+    .control-body {
+        padding: 15px;
+    }
+
+    .farm-diagram {
+        min-height: 620px;
+    }
+
+    .zones {
+        top: 450px;
+    }
+}
+
+</style>
+
+
+<!-- =========================================================
+     FLOATING BACKGROUND
+     ========================================================= -->
+
+<div class="water-page">
+
+    <div class="floating-leaves">
+
+        <div class="leaf">🌿</div>
+        <div class="leaf">🍃</div>
+        <div class="leaf">🌱</div>
+        <div class="leaf">🍃</div>
+        <div class="leaf">🌿</div>
+
+    </div>
+
+
+    <!-- =====================================================
+         NAVBAR
+         ===================================================== -->
+
+    <nav class="harvest-navbar">
+
+        <a href="/" class="brand">
+
+            <div class="brand-logo">
+                🌱
+            </div>
+
+            <div class="brand-text">
+
+                <strong>
+                    Smart Harvest
+                </strong>
+
+                <span>
+                    Smart Farming System
+                </span>
+
+            </div>
+
+        </a>
+
+
+        <div class="nav-links">
+
+            <a
+                href="/"
+                class="nav-link">
+
+                🏠 Home
+
+            </a>
+
+            <a
+                href="/dashboard/"
+                class="nav-link">
+
+                📊 Dashboard
+
+            </a>
+
+            <a
+                href="/water-management/"
+                class="nav-link active">
+
+                💧 Water
+
+            </a>
+
+            <a
+                href="/harvest/"
+                class="nav-link">
+
+                🌾 Harvest
+
+            </a>
+
+        </div>
+
+
+        <div class="nav-live">
+
+            <span class="nav-live-dot"></span>
+
+            LIVE
+
+        </div>
+
+    </nav>
+
+
+    <!-- =====================================================
+         PAGE HEADER
+         ===================================================== -->
+
+    <div class="page-header">
+
+        <div class="page-title">
+
+            <div class="page-title-icon">
+                💧
+            </div>
+
+            <div>
+
+                <h1>
+                    Water Management
+                </h1>
+
+                <p>
+                    Smart irrigation, live pump monitoring
+                    & watering schedule
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="clock-card">
+
+            🕐
+            <span id="liveClock">
+                Loading...
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         WATER GRID
+         ===================================================== -->
+
+    <div class="water-grid">
+
+
+        <!-- =================================================
+             FARM SYSTEM
+             ================================================= -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div class="panel-title">
+
+                    <span class="panel-icon">
+                        ≋
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Smart Irrigation System
+                        </h2>
+
+                        <p>
+                            Real-time farm water flow
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div style="
+                    color:#718078;
+                    font-size:12px;
+                    font-weight:800;
+                ">
+
+                    Flow:
+
+                    <strong
+                        id="flowRate"
+                        style="color:#198447;">
+
+                        0 L/min
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="farmDiagram"
+                class="farm-diagram">
+
+
+                <div class="farm-ground"></div>
+
+
+                <!-- TANK -->
+
+                <div class="tank-area">
+
+                    <div class="tank-label">
+                        WATER TANK · 05 KL
+                    </div>
+
+                    <div class="tank">
+
+                        <div
+                            id="tankWater"
+                            class="tank-water">
+                        </div>
+
+                        <div
+                            id="tankPercent"
+                            class="tank-percent">
+
+                            84%
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TANK PIPE -->
+
+                <div class="pipe tank-pipe">
+
+                    <div
+                        class="water-flow-vertical">
+                    </div>
+
+                </div>
+
+
+                <!-- MAIN PIPE -->
+
+                <div class="pipe main-pipe">
+
+                    <div
+                        class="water-flow-horizontal">
+                    </div>
+
+                </div>
+
+
+                <!-- PUMP -->
+
+                <div class="pump-area">
+
+                    <div
+                        id="pump"
+                        class="pump">
+
+                        💧
+
+                    </div>
+
+                    <div class="pump-label">
+
+                        PUMP-01
+
+                        <span id="pumpText">
+                            · বন্ধ
+                        </span>
+
+                    </div>
+
+                    <div class="pump-sub">
+                        Relay CH1 · 230V
+                    </div>
+
+                </div>
+
+
+                <!-- ZONES -->
+
+                <div class="zones">
+
+
+                    <div
+                        id="zoneA"
+                        class="zone">
+
+                        <div class="zone-water"></div>
+
+                        <div class="crop">
+                            🌱🌱
+                        </div>
+
+                        <h3>
+                            Zone A · ধান
+                        </h3>
+
+                        <p>
+                            Soil Moisture 72%
+                        </p>
+
+                        <div class="zone-pipe">
+
+                            <div
+                                class="zone-pipe-flow">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="zoneB"
+                        class="zone active">
+
+                        <div class="zone-water"></div>
+
+                        <div class="crop">
+                            🌱🌱
+                        </div>
+
+                        <h3>
+                            Zone B · ভুট্টা
+                        </h3>
+
+                        <p>
+                            Soil Moisture 55%
+                        </p>
+
+                        <div class="zone-pipe">
+
+                            <div
+                                class="zone-pipe-flow">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="zoneC"
+                        class="zone">
+
+                        <div class="zone-water"></div>
+
+                        <div class="crop">
+                            🌱🌱
+                        </div>
+
+                        <h3>
+                            Zone C · বাগান
+                        </h3>
+
+                        <p>
+                            Soil Moisture 68%
+                        </p>
+
+                        <div class="zone-pipe">
+
+                            <div
+                                class="zone-pipe-flow">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             CONTROL
+             ================================================= -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div class="panel-title">
+
+                    <span class="panel-icon">
+                        ⚙
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Irrigation Control
+                        </h2>
+
+                        <p>
+                            Pump & smart irrigation
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="control-body">
+
+
+                <!-- AUTO -->
+
+                <div class="control-row">
+
+                    <div class="control-label">
+
+                        <span>
+                            Master Auto
+                        </span>
+
+                        <div class="switch-wrap">
+
+                            <div
+                                id="autoSwitch"
+                                class="switch active"
+                                onclick="toggleAuto()">
+                            </div>
+
+                            <strong
+                                id="autoText"
+                                style="color:#20a653;">
+
+                                ON
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <small style="
+                        color:#8a968f;
+                        font-size:10px;
+                    ">
+
+                        Soil moisture অনুযায়ী
+                        irrigation automatically control হবে।
+
+                    </small>
+
+                </div>
+
+
+                <!-- PUMP -->
+
+                <div class="control-row">
+
+                    <div class="control-label">
+
+                        <span>
+                            Pump Control
+                        </span>
+
+                        <strong
+                            id="controlStatus"
+                            style="color:#7a8980;">
+
+                            READY
+
+                        </strong>
+
+                    </div>
+
+                    <button
+                        id="pumpButton"
+                        class="pump-button off"
+                        onclick="togglePump()">
+
+                        💧 Start Pump
+
+                    </button>
+
+                </div>
+
+
+                <!-- PRESSURE -->
+
+                <div class="control-row">
+
+                    <div class="control-label">
+
+                        <span>
+                            Water Pressure
+                        </span>
+
+                        <span
+                            id="pressureValue"
+                            class="range-value">
+
+                            35%
+
+                        </span>
+
+                    </div>
+
+                    <div class="range-wrap">
+
+                        <input
+                            id="pressureRange"
+                            type="range"
+                            min="0"
+                            max="100"
+                            value="35"
+                            oninput="changePressure(this.value)"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- QUICK ZONE -->
+
+                <div class="control-row">
+
+                    <div class="control-label">
+
+                        <span>
+                            Quick Zone
+                        </span>
+
+                    </div>
+
+                    <div style="
+                        display:flex;
+                        justify-content:flex-end;
+                        gap:8px;
+                    ">
+
+                        <button
+                            class="zone-button"
+                            id="quickA"
+                            onclick="selectZone('A')"
+                            style="
+                                width:43px;
+                                height:39px;
+                                border-radius:12px;
+                                border:2px solid #b7c5b8;
+                                background:#f7fbf5;
+                                cursor:pointer;
+                                font-weight:900;
+                                color:#334b3b;
+                            ">
+                            A
+                        </button>
+
+                        <button
+                            class="zone-button active"
+                            id="quickB"
+                            onclick="selectZone('B')"
+                            style="
+                                width:43px;
+                                height:39px;
+                                border-radius:12px;
+                                border:2px solid #20a653;
+                                background:#20a653;
+                                cursor:pointer;
+                                font-weight:900;
+                                color:white;
+                            ">
+                            B
+                        </button>
+
+                        <button
+                            class="zone-button"
+                            id="quickC"
+                            onclick="selectZone('C')"
+                            style="
+                                width:43px;
+                                height:39px;
+                                border-radius:12px;
+                                border:2px solid #b7c5b8;
+                                background:#f7fbf5;
+                                cursor:pointer;
+                                font-weight:900;
+                                color:#334b3b;
+                            ">
+                            C
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- LIVE DATA -->
+
+                <div class="control-row">
+
+                    <div class="control-label">
+                        Live Sensor Data
+                    </div>
+
+                    <div class="live-data">
+
+                        <div class="data-card">
+
+                            <span>
+                                Soil Moisture
+                            </span>
+
+                            <strong id="soilMoisture">
+                                55%
+                            </strong>
+
+                        </div>
+
+                        <div class="data-card">
+
+                            <span>
+                                Temperature
+                            </span>
+
+                            <strong id="temperature">
+                                29°C
+                            </strong>
+
+                        </div>
+
+                        <div class="data-card">
+
+                            <span>
+                                Tank Level
+                            </span>
+
+                            <strong id="tankLive">
+                                84%
+                            </strong>
+
+                        </div>
+
+                        <div class="data-card">
+
+                            <span>
+                                Water Flow
+                            </span>
+
+                            <strong id="flowLive">
+                                0 L/m
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- LOGIC -->
+
+                <div class="control-row">
+
+                    <div style="
+                        padding:15px;
+                        border:2px dashed #b9c8ba;
+                        border-radius:17px;
+                        background:#f8fcf5;
+                        color:#718078;
+                        font-size:11px;
+                        line-height:1.8;
+                    ">
+
+                        <strong style="color:#294533;">
+                            Smart Logic:
+                        </strong>
+
+                        Soil moisture threshold-এর নিচে গেলে
+                        Auto Mode pump চালু করবে।
+
+                        <br>
+
+                        Pump চালু থাকলে pipe-এর মধ্যে
+                        animated water flow দেখা যাবে।
+
+                        <br>
+
+                        Pump বন্ধ হলে water animation
+                        সঙ্গে সঙ্গে বন্ধ হবে।
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- =====================================================
+         IRRIGATION SCHEDULE
+         ===================================================== -->
+
+    <section class="schedule-panel">
+
+        <div class="schedule-head">
+
+            <div class="schedule-title">
+
+                <span class="schedule-title-icon">
+                    🗓
+                </span>
+
+                <div>
+
+                    <h2>
+                        সেচ সময়সূচি
+                    </h2>
+
+                    <p>
+                        Automated irrigation schedule
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div style="
+                color:#7d8d83;
+                font-size:11px;
+                font-weight:800;
+            ">
+
+                <span id="scheduleCount">
+                    4
+                </span>
+
+                schedules active
+
+            </div>
+
+        </div>
+
+
+        <!-- TABLE -->
+
+        <table class="schedule-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        জোন
+                    </th>
+
+                    <th>
+                        সময়
+                    </th>
+
+                    <th>
+                        সময়কাল
+                    </th>
+
+                    <th>
+                        দিন
+                    </th>
+
+                    <th>
+                        সক্রিয়
+                    </th>
+
+                    <th>
+                        Action
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="scheduleBody">
+
+                <tr>
+
+                    <td>
+                        <div class="zone-name">
+                            Z-A
+                            <span>· ধান</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        06:00
+                    </td>
+
+                    <td>
+                        20 min
+                    </td>
+
+                    <td>
+                        Daily
+                    </td>
+
+                    <td>
+
+                        <label class="schedule-switch">
+
+                            <input
+                                type="checkbox"
+                                checked
+                                onchange="updateScheduleCount()"
+                            >
+
+                            <span class="schedule-slider"></span>
+
+                        </label>
+
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="delete-btn"
+                            onclick="deleteSchedule(this)">
+
+                            🗑
+
+                        </button>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        <div class="zone-name">
+                            Z-B
+                            <span>· ভুট্টা</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        06:30
+                    </td>
+
+                    <td>
+                        25 min
+                    </td>
+
+                    <td>
+                        Daily
+                    </td>
+
+                    <td>
+
+                        <label class="schedule-switch">
+
+                            <input
+                                type="checkbox"
+                                checked
+                                onchange="updateScheduleCount()"
+                            >
+
+                            <span class="schedule-slider"></span>
+
+                        </label>
+
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="delete-btn"
+                            onclick="deleteSchedule(this)">
+
+                            🗑
+
+                        </button>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        <div class="zone-name">
+                            Z-A
+                            <span>· ধান</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        17:30
+                    </td>
+
+                    <td>
+                        15 min
+                    </td>
+
+                    <td>
+                        Daily
+                    </td>
+
+                    <td>
+
+                        <label class="schedule-switch">
+
+                            <input
+                                type="checkbox"
+                                checked
+                                onchange="updateScheduleCount()"
+                            >
+
+                            <span class="schedule-slider"></span>
+
+                        </label>
+
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="delete-btn"
+                            onclick="deleteSchedule(this)">
+
+                            🗑
+
+                        </button>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        <div class="zone-name">
+                            Z-C
+                            <span>· বাগান</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        18:00
+                    </td>
+
+                    <td>
+                        30 min
+                    </td>
+
+                    <td>
+                        Mon · Thu
+                    </td>
+
+                    <td>
+
+                        <label class="schedule-switch">
+
+                            <input
+                                type="checkbox"
+                                checked
+                                onchange="updateScheduleCount()"
+                            >
+
+                            <span class="schedule-slider"></span>
+
+                        </label>
+
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="delete-btn"
+                            onclick="deleteSchedule(this)">
+
+                            🗑
+
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+
+        <!-- ADD SCHEDULE -->
+
+        <div class="add-schedule">
+
+            <div class="field">
+
+                <select id="scheduleZone">
+
+                    <option value="Zone A · ধান">
+                        Zone A · ধান
+                    </option>
+
+                    <option
+                        value="Zone B · ভুট্টা"
+                        selected>
+                        Zone B · ভুট্টা
+                    </option>
+
+                    <option value="Zone C · বাগান">
+                        Zone C · বাগান
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <input
+                    id="scheduleTime"
+                    type="time"
+                    value="06:00">
+
+            </div>
+
+
+            <div class="field">
+
+                <input
+                    id="scheduleDuration"
+                    type="number"
+                    min="1"
+                    max="180"
+                    value="20"
+                    placeholder="Duration">
+
+            </div>
+
+
+            <button
+                class="add-btn"
+                onclick="addSchedule()">
+
+                ＋ সেচ যোগ করুন
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+</div>
+
+
+<!-- =========================================================
+     TOAST
+     ========================================================= -->
+
+<div
+    id="toast"
+    class="toast">
+
+    <strong id="toastTitle">
+        Smart Harvest
+    </strong>
+
+    <span id="toastMessage">
+        System updated
+    </span>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   SMART HARVEST WATER MANAGEMENT JS
+   ========================================================= */
+
+
+/* ================= STATE ================= */
+
+let pumpRunning = false;
+
+let autoMode = true;
+
+let pressure = 35;
+
+let tankLevel = 84;
+
+let selectedZone = "B";
+
+
+/* ================= ELEMENTS ================= */
+
+const farmDiagram =
+    document.getElementById("farmDiagram");
+
+const pumpButton =
+    document.getElementById("pumpButton");
+
+const pumpText =
+    document.getElementById("pumpText");
+
+const controlStatus =
+    document.getElementById("controlStatus");
+
+const flowRate =
+    document.getElementById("flowRate");
+
+const flowLive =
+    document.getElementById("flowLive");
+
+const tankWater =
+    document.getElementById("tankWater");
+
+const tankPercent =
+    document.getElementById("tankPercent");
+
+const tankLive =
+    document.getElementById("tankLive");
+
+
+/* =========================================================
+   CLOCK
+   ========================================================= */
+
+function updateClock() {
+
+    const now =
+        new Date();
+
+    let hours =
+        now.getHours();
+
+    let minutes =
+        now.getMinutes();
+
+    let seconds =
+        now.getSeconds();
+
+    let ampm =
+        hours >= 12
+            ? "PM"
+            : "AM";
+
+    hours =
+        hours % 12 || 12;
+
+    hours =
+        String(hours)
+            .padStart(2,"0");
+
+    minutes =
+        String(minutes)
+            .padStart(2,"0");
+
+    seconds =
+        String(seconds)
+            .padStart(2,"0");
+
+    document.getElementById(
+        "liveClock"
+    ).innerText =
+        `${hours}:${minutes}:${seconds} ${ampm}`;
+
+}
+
+updateClock();
+
+setInterval(
+    updateClock,
+    1000
+);
+
+
+/* =========================================================
+   PUMP
+   ========================================================= */
+
+function togglePump() {
+
+    pumpRunning =
+        !pumpRunning;
+
+    updatePumpUI();
+
+}
+
+
+function updatePumpUI() {
+
+    if (pumpRunning) {
+
+        farmDiagram.classList.add(
+            "pump-running"
+        );
+
+        pumpButton.classList.remove(
+            "off"
+        );
+
+        pumpButton.innerHTML =
+            "⏹ Stop Pump";
+
+        pumpText.innerHTML =
+            "· চালু";
+
+        controlStatus.innerHTML =
+            "RUNNING";
+
+        controlStatus.style.color =
+            "#20a653";
+
+        calculateFlow();
+
+        showToast(
+            "Pump Started",
+            "Water flow system is now running."
+        );
+
+    } else {
+
+        farmDiagram.classList.remove(
+            "pump-running"
+        );
+
+        pumpButton.classList.add(
+            "off"
+        );
+
+        pumpButton.innerHTML =
+            "💧 Start Pump";
+
+        pumpText.innerHTML =
+            "· বন্ধ";
+
+        controlStatus.innerHTML =
+            "READY";
+
+        controlStatus.style.color =
+            "#7a8980";
+
+        flowRate.innerHTML =
+            "0 L/min";
+
+        flowLive.innerHTML =
+            "0 L/m";
+
+        showToast(
+            "Pump Stopped",
+            "Water flow has been stopped."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   FLOW
+   ========================================================= */
+
+function calculateFlow() {
+
+    if (!pumpRunning) {
+
+        flowRate.innerHTML =
+            "0 L/min";
+
+        flowLive.innerHTML =
+            "0 L/m";
+
+        return;
+    }
+
+
+    const flow =
+        Math.round(
+            7 + pressure * .42
+        );
+
+
+    flowRate.innerHTML =
+        `${flow} L/min`;
+
+    flowLive.innerHTML =
+        `${flow} L/m`;
+
+}
+
+
+/* =========================================================
+   PRESSURE
+   ========================================================= */
+
+function changePressure(value) {
+
+    pressure =
+        Number(value);
+
+    document.getElementById(
+        "pressureValue"
+    ).innerText =
+        `${pressure}%`;
+
+    calculateFlow();
+
+}
+
+
+/* =========================================================
+   AUTO MODE
+   ========================================================= */
+
+function toggleAuto() {
+
+    autoMode =
+        !autoMode;
+
+    const switchEl =
+        document.getElementById(
+            "autoSwitch"
+        );
+
+    const text =
+        document.getElementById(
+            "autoText"
+        );
+
+
+    if (autoMode) {
+
+        switchEl.classList.add(
+            "active"
+        );
+
+        text.innerText =
+            "ON";
+
+        text.style.color =
+            "#20a653";
+
+        showToast(
+            "Auto Mode ON",
+            "Smart irrigation is active."
+        );
+
+    } else {
+
+        switchEl.classList.remove(
+            "active"
+        );
+
+        text.innerText =
+            "OFF";
+
+        text.style.color =
+            "#7a8980";
+
+        showToast(
+            "Auto Mode OFF",
+            "Manual irrigation control enabled."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   ZONE
+   ========================================================= */
+
+function selectZone(zone) {
+
+    selectedZone =
+        zone;
+
+
+    /* buttons */
+
+    ["A","B","C"].forEach(
+        letter => {
+
+            const button =
+                document.getElementById(
+                    "quick" + letter
+                );
+
+            if (letter === zone) {
+
+                button.style.background =
+                    "#20a653";
+
+                button.style.borderColor =
+                    "#20a653";
+
+                button.style.color =
+                    "white";
+
+            } else {
+
+                button.style.background =
+                    "#f7fbf5";
+
+                button.style.borderColor =
+                    "#b7c5b8";
+
+                button.style.color =
+                    "#334b3b";
+
+            }
+
+        }
+    );
+
+
+    /* zones */
+
+    ["A","B","C"].forEach(
+        letter => {
+
+            const zoneEl =
+                document.getElementById(
+                    "zone" + letter
+                );
+
+            zoneEl.classList.remove(
+                "active"
+            );
+
+        }
+    );
+
+
+    document.getElementById(
+        "zone" + zone
+    ).classList.add(
+        "active"
+    );
+
+
+    showToast(
+        "Zone Selected",
+        `Zone ${zone} irrigation selected.`
+    );
+
+}
+
+
+/* =========================================================
+   TANK LIVE
+   ========================================================= */
+
+setInterval(
+    () => {
+
+        if (pumpRunning) {
+
+            tankLevel -= .12;
+
+            if (tankLevel < 10) {
+
+                tankLevel = 10;
+
+                pumpRunning = false;
+
+                updatePumpUI();
+
+            }
+
+        } else {
+
+            /*
+             * Demo recovery.
+             */
+
+            tankLevel += .015;
+
+            if (tankLevel > 84) {
+                tankLevel = 84;
+            }
+
+        }
+
+
+        tankWater.style.height =
+            `${tankLevel}%`;
+
+        tankPercent.innerText =
+            `${Math.round(tankLevel)}%`;
+
+        tankLive.innerText =
+            `${Math.round(tankLevel)}%`;
+
+    },
+    1000
+);
+
+
+/* =========================================================
+   SOIL MOISTURE
+   ========================================================= */
+
+let soil =
+    55;
+
+
+setInterval(
+    () => {
+
+        if (pumpRunning) {
+
+            if (
+                Math.random() > .55
+            ) {
+                soil += 1;
+            }
+
+        } else {
+
+            if (
+                Math.random() > .78
+            ) {
+                soil -= 1;
+            }
+
+        }
+
+
+        soil =
+            Math.max(
+                35,
+                Math.min(
+                    85,
+                    soil
+                )
+            );
+
+
+        document.getElementById(
+            "soilMoisture"
+        ).innerText =
+            `${soil}%`;
+
+
+        /*
+         * Auto irrigation
+         */
+
+        if (
+            autoMode &&
+            soil <= 42 &&
+            !pumpRunning
+        ) {
+
+            pumpRunning =
+                true;
+
+            updatePumpUI();
+
+        }
+
+
+        if (
+            autoMode &&
+            soil >= 74 &&
+            pumpRunning
+        ) {
+
+            pumpRunning =
+                false;
+
+            updatePumpUI();
+
+        }
+
+    },
+    3000
+);
+
+
+/* =========================================================
+   TEMPERATURE
+   ========================================================= */
+
+setInterval(
+    () => {
+
+        const temperature =
+            27 +
+            Math.floor(
+                Math.random() * 6
+            );
+
+        document.getElementById(
+            "temperature"
+        ).innerText =
+            `${temperature}°C`;
+
+    },
+    5000
+);
+
+
+/* =========================================================
+   SCHEDULE DELETE
+   ========================================================= */
+
+function deleteSchedule(button) {
+
+    const row =
+        button.closest("tr");
+
+    row.style.opacity =
+        "0";
+
+    row.style.transform =
+        "translateX(30px)";
+
+
+    setTimeout(
+        () => {
+
+            row.remove();
+
+            updateScheduleCount();
+
+            showToast(
+                "Schedule Deleted",
+                "Irrigation schedule removed."
+            );
+
+        },
+        280
+    );
+
+}
+
+
+/* =========================================================
+   ADD SCHEDULE
+   ========================================================= */
+
+function addSchedule() {
+
+    const zone =
+        document.getElementById(
+            "scheduleZone"
+        ).value;
+
+    const time =
+        document.getElementById(
+            "scheduleTime"
+        ).value;
+
+    const duration =
+        document.getElementById(
+            "scheduleDuration"
+        ).value;
+
+
+    if (!time || !duration) {
+
+        showToast(
+            "Missing Information",
+            "Please select time and duration."
+        );
+
+        return;
+    }
+
+
+    let zoneCode =
+        "Z-A";
+
+    if (
+        zone.includes("B")
+    ) {
+        zoneCode =
+            "Z-B";
+    }
+
+    if (
+        zone.includes("C")
+    ) {
+        zoneCode =
+            "Z-C";
+    }
+
+
+    const tbody =
+        document.getElementById(
+            "scheduleBody"
+        );
+
+
+    const row =
+        document.createElement(
+            "tr"
+        );
+
+
+    row.innerHTML = `
+
+        <td>
+
+            <div class="zone-name">
+
+                ${zoneCode}
+
+                <span>
+                    · ${zone.split("·")[1] || ""}
+                </span>
+
+            </div>
+
+        </td>
+
+
+        <td>
+            ${time}
+        </td>
+
+
+        <td>
+            ${duration} min
+        </td>
+
+
+        <td>
+            Daily
+        </td>
+
+
+        <td>
+
+            <label class="schedule-switch">
+
+                <input
+                    type="checkbox"
+                    checked
+                    onchange="updateScheduleCount()"
+                >
+
+                <span class="schedule-slider"></span>
+
+            </label>
+
+        </td>
+
+
+        <td>
+
+            <button
+                class="delete-btn"
+                onclick="deleteSchedule(this)">
+
+                🗑
+
+            </button>
+
+        </td>
+
+    `;
+
+
+    row.style.opacity =
+        "0";
+
+    row.style.transform =
+        "translateY(15px)";
+
+
+    tbody.appendChild(
+        row
+    );
+
+
+    requestAnimationFrame(
+        () => {
+
+            row.style.transition =
+                ".4s";
+
+            row.style.opacity =
+                "1";
+
+            row.style.transform =
+                "translateY(0)";
+
+        }
+    );
+
+
+    updateScheduleCount();
+
+
+    showToast(
+        "Schedule Added",
+        `${zoneCode} irrigation schedule created.`
+    );
+
+}
+
+
+/* =========================================================
+   SCHEDULE COUNT
+   ========================================================= */
+
+function updateScheduleCount() {
+
+    const switches =
+        document.querySelectorAll(
+            "#scheduleBody input[type='checkbox']"
+        );
+
+
+    let active =
+        0;
+
+
+    switches.forEach(
+        checkbox => {
+
+            if (checkbox.checked) {
+                active++;
+            }
+
+        }
+    );
+
+
+    document.getElementById(
+        "scheduleCount"
+    ).innerText =
+        active;
+
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+let toastTimer;
+
+
+function showToast(
+    title,
+    message
+) {
+
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+    document.getElementById(
+        "toastTitle"
+    ).innerText =
+        title;
+
+    document.getElementById(
+        "toastMessage"
+    ).innerText =
+        message;
+
+
+    toast.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(
+        toastTimer
+    );
+
+
+    toastTimer =
+        setTimeout(
+            () => {
+
+                toast.classList.remove(
+                    "show"
+                );
+
+            },
+            2800
+        );
+
+}
+
+
+/* =========================================================
+   INITIAL
+   ========================================================= */
+
+tankWater.style.height =
+    `${tankLevel}%`;
+
+updateScheduleCount();
+
+</script>
+
+{% endblock %}

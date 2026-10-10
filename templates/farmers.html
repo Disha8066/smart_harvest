@@ -1,0 +1,597 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Farmers | Smart Harvest{% endblock %}
+
+{% block extra_css %}
+<style>
+.fm-page {
+    padding: 30px 5%;
+    min-height: 80vh;
+    background: var(--bg, #f7faf7);
+    color: var(--text, #20352a);
+}
+.fm-page * { box-sizing: border-box; }
+
+.fm-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 25px;
+}
+.fm-head h1 {
+    font-size: clamp(27px, 4vw, 36px);
+    font-weight: 800;
+    margin: 0 0 8px;
+}
+.fm-head p {
+    margin: 0;
+    color: var(--muted, #718078);
+    line-height: 1.6;
+}
+
+.fm-btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    border: 0;
+    background: #238344;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .25s;
+    font-family: inherit;
+    font-size: 14px;
+}
+.fm-btn:hover {
+    background: #176b32;
+    transform: translateY(-2px);
+    color: #fff;
+}
+.fm-btn.alt {
+    background: #e5f5e8;
+    color: #176b32;
+}
+.fm-btn:focus-visible,
+.fm-search:focus-visible {
+    outline: 3px solid #69b77b;
+    outline-offset: 3px;
+}
+
+.fm-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 22px;
+}
+.fm-card {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border, #e5ece6);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 8px 25px #163b2010;
+    animation: fmUp .5s both;
+    transition: .25s;
+    min-width: 0;
+}
+.fm-card:hover { transform: translateY(-2px); }
+
+.fm-label {
+    font-size: 13px;
+    color: var(--muted, #718078);
+}
+.fm-number {
+    font-size: 31px;
+    font-weight: 800;
+    margin: 10px 0 4px;
+}
+.fm-content {
+    display: grid;
+    grid-template-columns: .8fr 1.2fr;
+    gap: 22px;
+    align-items: start;
+}
+.fm-card h2 {
+    font-size: 19px;
+    margin: 0 0 8px;
+}
+.fm-help {
+    font-size: 13px;
+    color: var(--muted, #718078);
+    line-height: 1.65;
+    margin: 0 0 20px;
+}
+.fm-form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+}
+.fm-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 7px;
+}
+.fm-field input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border, #dce5dd);
+    border-radius: 10px;
+    background: var(--input-bg, #fff);
+    color: var(--text, #20352a);
+    font: inherit;
+    font-size: 14px;
+}
+.fm-field input:focus {
+    outline: 2px solid #23834455;
+    border-color: #238344;
+}
+.fm-search {
+    width: 100%;
+    padding: 13px 15px;
+    border: 1px solid var(--border, #dce5dd);
+    border-radius: 12px;
+    background: var(--input-bg, #fff);
+    color: var(--text, #20352a);
+    font: inherit;
+    margin-bottom: 17px;
+}
+.fm-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+}
+.fm-person {
+    padding: 20px;
+    border: 1px solid var(--border, #e5ece6);
+    background: var(--card-bg, #fff);
+    border-radius: 16px;
+    transition: .25s;
+    animation: fmUp .5s both;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.fm-person:hover {
+    border-color: #7ac78b;
+    box-shadow: 0 10px 25px #163b2010;
+}
+.fm-avatar {
+    width: 49px;
+    height: 49px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #c9f2d0, #e8f8e9);
+    font-size: 25px;
+    margin-bottom: 13px;
+}
+.fm-person h3 {
+    font-size: 17px;
+    margin: 0 0 7px;
+    overflow-wrap: anywhere;
+}
+.fm-detail {
+    font-size: 13px;
+    color: var(--muted, #718078);
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+.fm-tag {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 6px 10px;
+    background: #e5f5e8;
+    color: #176b32;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+.fm-person-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 15px;
+}
+.fm-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 30px;
+    color: var(--muted, #718078);
+    line-height: 1.7;
+}
+.fm-alert {
+    padding: 12px 15px;
+    margin-bottom: 18px;
+    border-radius: 10px;
+}
+.fm-alert.error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+.fm-alert.warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+.fm-alert.info {
+    background: #dbeafe;
+    color: #1e40af;
+}
+.fm-alert.success {
+    background: #dcfce7;
+    color: #166534;
+}
+.fm-footer-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 22px;
+}
+.fm-person[hidden],
+.fm-empty[hidden],
+#farmerNoResults[hidden],
+.chat-user[hidden],
+#chatNoResults[hidden] {
+    display: none !important;
+}
+.fm-chat-section {
+    margin-top: 22px;
+}
+.fm-chat-search {
+    margin-top: 12px;
+}
+.fm-chat-note {
+    color: var(--muted, #718078);
+    font-size: 13px;
+    line-height: 1.6;
+}
+.fm-chat-user {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border, #e5ece6);
+}
+.fm-chat-user:last-child {
+    border-bottom: 0;
+}
+.fm-chat-user-info {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.fm-chat-user-info strong {
+    display: block;
+    margin-bottom: 5px;
+}
+.fm-chat-user-info span {
+    font-size: 13px;
+    color: var(--muted, #718078);
+}
+
+[data-theme="dark"] .fm-page {
+    --bg: #101a13;
+    --text: #e5f2e8;
+    --muted: #afc1b4;
+    --card-bg: #18251c;
+    --border: #2b3c30;
+    --input-bg: #132017;
+}
+[data-theme="dark"] .fm-tag {
+    background: #233d2b;
+    color: #a4e5b1;
+}
+[data-theme="dark"] .fm-btn.alt {
+    background: #233d2b;
+    color: #a4e5b1;
+}
+
+@keyframes fmUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+    .fm-content { grid-template-columns: 1fr; }
+    .fm-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+    .fm-page { padding: 22px 4%; }
+    .fm-stats { grid-template-columns: 1fr; }
+    .fm-list { grid-template-columns: 1fr; }
+    .fm-card { padding: 17px; }
+    .fm-person { padding: 16px; }
+    .fm-head .fm-btn { width: 100%; }
+    .fm-person-actions .fm-btn { flex: 1; }
+    .fm-chat-user .fm-btn { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .fm-page *,
+    .fm-page *::before,
+    .fm-page *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fm-page">
+
+    <header class="fm-head">
+        <div>
+            <h1>👨‍🌾 Farmer Community</h1>
+            <p>Connect with farmers and organize your agricultural community.</p>
+        </div>
+        <a class="fm-btn" href="#add-farmer">＋ Add Farmer</a>
+    </header>
+
+    {% if messages %}
+        {% for notice in messages %}
+            <div class="fm-alert {{ notice.tags|default:'info' }}" role="status">
+                {{ notice }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="fm-stats">
+        <article class="fm-card">
+            <div class="fm-label">Registered Farmers</div>
+            <div class="fm-number">{{ farmers|length }}</div>
+            <div class="fm-label">Farmers in the directory</div>
+        </article>
+        <article class="fm-card">
+            <div class="fm-label">Community</div>
+            <div class="fm-number">🌱</div>
+            <div class="fm-label">Grow and learn together</div>
+        </article>
+        <article class="fm-card">
+            <div class="fm-label">Connections</div>
+            <div class="fm-number">🤝</div>
+            <div class="fm-label">Connect and share messages</div>
+        </article>
+    </div>
+
+    <div class="fm-content">
+
+        <!-- REGISTER FARMER -->
+        <section class="fm-card" id="add-farmer">
+            <h2>＋ Register Farmer</h2>
+            <p class="fm-help">
+                Add farmer details to your agricultural community.
+            </p>
+
+            <form method="POST" action="{% url 'farmers' %}" class="fm-form">
+                {% csrf_token %}
+
+                <div class="fm-field">
+                    <label for="fm-name">Full Name *</label>
+                    <input id="fm-name" name="name" type="text"
+                           placeholder="Farmer's full name"
+                           maxlength="150" autocomplete="name" required>
+                </div>
+
+                <div class="fm-field">
+                    <label for="fm-email">Email</label>
+                    <input id="fm-email" name="email" type="email"
+                           placeholder="farmer@example.com"
+                           maxlength="254" autocomplete="email">
+                </div>
+
+                <div class="fm-field">
+                    <label for="fm-phone">Phone Number *</label>
+                    <input id="fm-phone" name="phone" type="tel"
+                           placeholder="+880..."
+                           maxlength="20" autocomplete="tel" required>
+                </div>
+
+                <div class="fm-field">
+                    <label for="fm-location">Farm Location *</label>
+                    <input id="fm-location" name="location" type="text"
+                           placeholder="District or village"
+                           maxlength="200" required>
+                </div>
+
+                <div class="fm-field">
+                    <label for="fm-crop">Main Crop</label>
+                    <input id="fm-crop" name="main_crop" type="text"
+                           placeholder="e.g. Rice, Tomato" maxlength="100">
+                </div>
+
+                <button type="submit" class="fm-btn">
+                    Register Farmer
+                </button>
+            </form>
+        </section>
+
+        <!-- FARMER DIRECTORY -->
+        <section class="fm-card">
+            <h2>🌿 Farmer Directory</h2>
+            <p class="fm-help">
+                Search farmer details. Use Message when a farmer's account is linked.
+            </p>
+
+            <input class="fm-search"
+                   id="farmerSearch"
+                   type="search"
+                   placeholder="Search name, email, phone or location..."
+                   aria-label="Search farmers">
+
+            <div class="fm-list" id="farmerList">
+                {% for farmer in farmers %}
+                    <article class="fm-person farmer-item">
+                        <div class="fm-avatar" aria-hidden="true">👨‍🌾</div>
+
+                        <h3>{{ farmer.name }}</h3>
+
+                        <div class="fm-detail">
+                            {% if farmer.email %}
+                                ✉️ {{ farmer.email }}
+                            {% else %}
+                                ✉️ Email not provided
+                            {% endif %}
+                            <br>📞 {{ farmer.phone }}
+                            <br>📍 {{ farmer.location }}
+
+                            {% if farmer.main_crop %}
+                                <br>🌾 Main crop: {{ farmer.main_crop }}
+                            {% endif %}
+                        </div>
+
+                        <span class="fm-tag">Community Member</span>
+
+                        <div class="fm-person-actions">
+                            {% if farmer.user_id %}
+                                {% if farmer.user_id != request.user.id %}
+                                    <a class="fm-btn"
+                                       href="{% url 'direct_chat' user_id=farmer.user_id %}">
+                                        💬 Message Farmer
+                                    </a>
+                                {% else %}
+                                    <span class="fm-tag">Your Account</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="fm-tag"
+                                      title="This farmer has no linked login account.">
+                                    Profile Only
+                                </span>
+                            {% endif %}
+                        </div>
+                    </article>
+                {% empty %}
+                    <div class="fm-empty">
+                        <div style="font-size:40px">🌾</div>
+                        <strong>No farmers found</strong>
+                        <p>Registered farmers will appear here.</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <p class="fm-help" id="farmerNoResults" hidden>
+                No matching farmers found.
+            </p>
+        </section>
+    </div>
+
+    <!-- CHAT WITH REGISTERED USERS -->
+    <section class="fm-card fm-chat-section">
+        <h2>💬 Chat with Registered Users</h2>
+        <p class="fm-help">
+            Select another active Smart Harvest account to open a private conversation.
+        </p>
+
+        <input
+            class="fm-search fm-chat-search"
+            id="chatUserSearch"
+            type="search"
+            placeholder="Search users by name, username or email..."
+            aria-label="Search registered users"
+        >
+
+        <div id="chatUserList">
+            {% for chat_user in chat_users %}
+                <div class="fm-chat-user chat-user">
+                    <div class="fm-chat-user-info">
+                        <strong>
+                            {% if chat_user.first_name %}
+                                {{ chat_user.first_name }}
+                            {% else %}
+                                {{ chat_user.username }}
+                            {% endif %}
+                        </strong>
+                        <span>
+                            @{{ chat_user.username }}
+                            {% if chat_user.email %}
+                                · {{ chat_user.email }}
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <a
+                        class="fm-btn"
+                        href="{% url 'direct_chat' user_id=chat_user.id %}"
+                    >
+                        💬 Open Chat
+                    </a>
+                </div>
+            {% empty %}
+                <div class="fm-empty">
+                    No other registered users are available yet.
+                    Create a second test account to try messaging.
+                </div>
+            {% endfor %}
+        </div>
+
+        <p class="fm-help" id="chatNoResults" hidden>
+            No matching users found.
+        </p>
+    </section>
+
+    <div class="fm-footer-actions">
+        <a class="fm-btn alt" href="{% url 'buyers' %}">🛒 View Buyers</a>
+        <a class="fm-btn alt" href="{% url 'dashboard' %}">← Back to Dashboard</a>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const farmerSearch = document.getElementById("farmerSearch");
+    const farmerItems = document.querySelectorAll(".farmer-item");
+    const farmerNoResults = document.getElementById("farmerNoResults");
+
+    if (farmerSearch) {
+        farmerSearch.addEventListener("input", function () {
+            const query = farmerSearch.value.trim().toLowerCase();
+            let visibleCount = 0;
+
+            farmerItems.forEach(function (item) {
+                const matches = item.textContent.toLowerCase().includes(query);
+                item.hidden = !matches;
+                if (matches) visibleCount++;
+            });
+
+            if (farmerNoResults) {
+                farmerNoResults.hidden =
+                    visibleCount !== 0 || farmerItems.length === 0;
+            }
+        });
+    }
+
+    const chatSearch = document.getElementById("chatUserSearch");
+    const chatItems = document.querySelectorAll(".chat-user");
+    const chatNoResults = document.getElementById("chatNoResults");
+
+    if (chatSearch) {
+        chatSearch.addEventListener("input", function () {
+            const query = chatSearch.value.trim().toLowerCase();
+            let visibleCount = 0;
+
+            chatItems.forEach(function (item) {
+                const matches = item.textContent.toLowerCase().includes(query);
+                item.hidden = !matches;
+                if (matches) visibleCount++;
+            });
+
+            if (chatNoResults) {
+                chatNoResults.hidden =
+                    visibleCount !== 0 || chatItems.length === 0;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
